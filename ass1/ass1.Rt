@@ -1,0 +1,398 @@
+> source("ass1.r", echo=T)
+
+> #### Ying Qiao
+> #### SID: 21412301
+> #### STAT 215B, Assignment 1, 2/8/2013
+> 
+> rm(list=ls())
+
+> # load and pre-process data
+> babies <- read.table("babies.data", header=T)
+
+> head(babies)
+  bwt gestation parity age height weight smoke
+1 120       284      0  27     62    100     0
+2 113       282      0  33     64    135     0
+3 128       279      0  28     64    115     1
+4 123       999      0  36     69    190     0
+5 108       282      0  23     67    125     1
+6 136       286      0  25     62     93     0
+
+> # replace NA
+> babies$gestation[babies$gestation == 999] <- as.numeric("NA")
+
+> babies$age[babies$age == 99] <- as.numeric("NA")
+
+> babies$height[babies$height == 99] <- as.numeric("NA")
+
+> babies$weight[babies$weight == 999] <- as.numeric("NA")
+
+> babies$smoke[babies$smoke == 9] <- as.numeric("NA")
+
+> # categorical var
+> babies$parity <- factor(babies$parity)
+
+> levels(babies$parity) <- c("not.FB","is.FB") # first-born
+
+> babies$smoke <- factor(babies$smoke)
+
+> levels(babies$smoke) <- c("No","Yes") # smokes
+
+> # check initial statistics
+> head(babies, n = 10)
+   bwt gestation parity age height weight smoke
+1  120       284 not.FB  27     62    100    No
+2  113       282 not.FB  33     64    135    No
+3  128       279 not.FB  28     64    115   Yes
+4  123        NA not.FB  36     69    190    No
+5  108       282 not.FB  23     67    125   Yes
+6  136       286 not.FB  25     62     93    No
+7  138       244 not.FB  33     62    178    No
+8  132       245 not.FB  23     65    140    No
+9  120       289 not.FB  25     62    125    No
+10 143       299 not.FB  30     66    136   Yes
+
+> ## c1.2
+> babies$premature <- factor(babies$gestation < 37*7)
+
+> levels(babies$premature) <- c("not.PM","is.PM") # premature factor
+
+> ## c2.2
+> babies$f.height <- factor(babies$height > median(babies$height, na.rm=T))
+
+> levels(babies$f.height) <- c("short","tall") # height factor
+
+> ## c2.3
+> babies$f.weight <- factor(babies$weight > median(babies$weight, na.rm=T))
+
+> levels(babies$f.weight) <- c("light","heavy") # height factor
+
+> ## check
+> head(babies, n = 10)
+   bwt gestation parity age height weight smoke premature f.height f.weight
+1  120       284 not.FB  27     62    100    No    not.PM    short    light
+2  113       282 not.FB  33     64    135    No    not.PM    short    heavy
+3  128       279 not.FB  28     64    115   Yes    not.PM    short    light
+4  123        NA not.FB  36     69    190    No      <NA>     tall    heavy
+5  108       282 not.FB  23     67    125   Yes    not.PM     tall    light
+6  136       286 not.FB  25     62     93    No    not.PM    short    light
+7  138       244 not.FB  33     62    178    No     is.PM    short    heavy
+8  132       245 not.FB  23     65    140    No     is.PM     tall    heavy
+9  120       289 not.FB  25     62    125    No    not.PM    short    light
+10 143       299 not.FB  30     66    136   Yes    not.PM     tall    heavy
+
+> hist(babies$gestation,col="blue",lwd=2, main="Distribution of overall gestation",xlab="Days of pregnancy",ylab="Counts of mothers")
+
+> #### Claim 1: gestation ~ smoke
+> ## 1. graphical comparison: smoke vs. non-smoke
+> attach(babies)
+
+> xlim=range(gestation, na.rm=T); ylim=c(0,0.04);
+
+> lwd=2;col="blue"; xlab="Days of pregnancy"; breaks=seq(140,360,10)
+
+> #boxplot
+> boxplot(gestation~smoke, data=babies, col=col,lwd=lwd, xlab="Smoke", ylab=xlab)
+
+> #histogram
+> par(mfrow=c(2,1),cex.main= 1)
+
+> hist(gestation[smoke == "No"],breaks=breaks,freq=F, xlim=xlim,ylim=ylim, col=col,lwd=lwd,main="",xlab=xlab,ylab="Non-smoking mother")
+
+> hist(gestation[smoke == "Yes"],breaks=breaks,freq=F, xlim=xlim,ylim=ylim, col=col,lwd=lwd,main="",xlab=xlab,ylab="Smoking mother")
+
+> ## 2. tabular comparison
+> tb.PS <- table(premature, smoke)
+
+> ftable(tb.PS)
+          smoke  No Yes
+premature              
+not.PM          677 439
+is.PM            56  41
+
+> ## 3. visualization of 2.
+> require(stats)
+
+> mosaicplot(smoke ~ premature, data=babies, main = "Gestation distribution", color = TRUE)
+
+> ## 4. hypothesis test:
+> ## H0: smoking and non-smoking mothers have the same rate of premature delivery
+> chisq.test(tb.PS)
+
+	Pearson's Chi-squared test with Yates' continuity correction
+
+data:  tb.PS 
+X-squared = 0.2098, df = 1, p-value = 0.6469
+
+
+> fisher.test(tb.PS)
+
+	Fisher's Exact Test for Count Data
+
+data:  tb.PS 
+p-value = 0.5893
+alternative hypothesis: true odds ratio is not equal to 1 
+95 percent confidence interval:
+ 0.7220672 1.7529950 
+sample estimates:
+odds ratio 
+  1.128951 
+
+
+> ## 5. hypothesis test:
+> ## H0: smoking and non-smoking mothers have the same overall average gestation time
+> ## HA: smoking mothers have shorter o .... [TRUNCATED] 
+
+	Welch Two Sample t-test
+
+data:  gestation by smoke 
+t = 2.3939, df = 1092.553, p-value = 0.9916
+alternative hypothesis: true difference in means is less than 0 
+95 percent confidence interval:
+     -Inf 3.725994 
+sample estimates:
+ mean in group No mean in group Yes 
+         280.1869          277.9792 
+
+
+> wilcox.test(gestation ~ smoke, alternative = "less")
+
+	Wilcoxon rank sum test with continuity correction
+
+data:  gestation by smoke 
+W = 195867, p-value = 0.9996
+alternative hypothesis: true location shift is less than 0 
+
+
+> ## 6. other support for claim 1
+> 
+> 
+> 
+> 
+> 
+> #### Claim 2: bwt ~ smoke (stronger covariate)
+> ## 1. bwt difference ~ smoke/first-born
+> ## assum .... [TRUNCATED] 
+
+	Welch Two Sample t-test
+
+data:  bwt by smoke 
+t = 8.5813, df = 1003.197, p-value < 2.2e-16
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+  6.89385 10.98148 
+sample estimates:
+ mean in group No mean in group Yes 
+         123.0472          114.1095 
+
+
+> t.test(bwt ~ parity)
+
+	Welch Two Sample t-test
+
+data:  bwt by parity 
+t = 1.6863, df = 584.539, p-value = 0.09228
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.3177056  4.1751483 
+sample estimates:
+mean in group not.FB  mean in group is.FB 
+            120.0684             118.1397 
+
+
+> t.test(bwt ~ f.height)
+
+	Welch Two Sample t-test
+
+data:  bwt by f.height 
+t = -5.6814, df = 1106.592, p-value = 1.707e-08
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -8.045415 -3.914841 
+sample estimates:
+mean in group short  mean in group tall 
+           116.8588            122.8390 
+
+
+> t.test(bwt ~ f.weight)
+
+	Welch Two Sample t-test
+
+data:  bwt by f.weight 
+t = -5.0272, df = 1188.439, p-value = 5.742e-07
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -7.342884 -3.220361 
+sample estimates:
+mean in group light mean in group heavy 
+           116.9034            122.1851 
+
+
+> ## H0: the difference in the average bwt between smoking/non-smoking mothers is the same as that between firt-borns/non-first-borns
+> dA = mean(bwt[ .... [TRUNCATED] 
+
+> dB = mean(bwt[parity=="not.FB"], na.rm=T) - mean(bwt[parity=="is.FB"], na.rm=T)
+
+> var.dA = var(bwt[smoke=="No"], na.rm=T) + var(bwt[smoke=="Yes"], na.rm=T)
+
+> var.dB = var(bwt[parity=="not.FB"], na.rm=T) + var(bwt[parity=="is.FB"], na.rm=T)
+
+> cov.dAdB = sum(var(bwt[smoke=="No" && parity=="not.FB"], na.rm=T), var(bwt[smoke=="No" && parity=="is.FB"], na.rm=T),
++                var(bwt[smoke .... [TRUNCATED] 
+
+> se.dAdB = sqrt(var.dA + var.dB - 2*cov.dAdB)
+
+> wald.test1 <- (abs(dA)-abs(dB))/se.dAdB
+
+> p.1 <- pnorm(wald.test1, lower.tail=F)
+
+> ## 2. bwt difference ~ smoke/height
+> ## H0: the difference in the average bwt between smoking/non-smoking mothers is the same as that between tall/ .... [TRUNCATED] 
+
+> dB = mean(bwt[f.height=="short"], na.rm=T) - mean(bwt[f.height=="tall"], na.rm=T)
+
+> var.dA = var(bwt[smoke=="No"], na.rm=T) + var(bwt[smoke=="Yes"], na.rm=T)
+
+> var.dB = var(bwt[f.height=="short"], na.rm=T) + var(bwt[f.height=="tall"], na.rm=T)
+
+> cov.dAdB = sum(var(bwt[smoke=="No" && f.height=="short"], na.rm=T), var(bwt[smoke=="No" && f.height=="tall"], na.rm=T),
++                var(bwt[smo .... [TRUNCATED] 
+
+> se.dAdB = sqrt(var.dA + var.dB - 2*cov.dAdB)
+
+> wald.test2 <- (abs(dA)-abs(dB))/se.dAdB
+
+> p.2 <- pnorm(wald.test2, lower.tail=F) 
+
+> ## 3. bwt difference ~ smoke/weight
+> ## H0: the difference in the average bwt between smoking/non-smoking mothers is the same as that between light .... [TRUNCATED] 
+
+> dB = mean(bwt[f.weight=="light"], na.rm=T) - mean(bwt[f.weight=="heavy"], na.rm=T)
+
+> var.dA = var(bwt[smoke=="No"], na.rm=T) + var(bwt[smoke=="Yes"], na.rm=T)
+
+> var.dB = var(bwt[f.weight=="light"], na.rm=T) + var(bwt[f.weight=="heavy"], na.rm=T)
+
+> cov.dAdB = sum(var(bwt[smoke=="No" && f.weight=="light"], na.rm=T), var(bwt[smoke=="No" && f.weight=="heavy"], na.rm=T),
++                var(bwt[sm .... [TRUNCATED] 
+
+> se.dAdB = sqrt(var.dA + var.dB - 2*cov.dAdB)
+
+> wald.test3 <- (abs(dA)-abs(dB))/se.dAdB
+
+> p.3 <- pnorm(wald.test3, lower.tail=F) 
+
+> ## 4. visual comparisons
+> par(mfrow=c(2,2),cex.main= 1)
+
+> ylab="Birth weight";ylim=range(bwt,na.rm=T)
+
+> boxplot(bwt~smoke, data=babies, ylim=ylim, col=col,lwd=lwd, xlab="Smoke", ylab=ylab)
+
+> boxplot(bwt~parity, data=babies, ylim=ylim, col=col,lwd=lwd, xlab="First-born", ylab=ylab)
+
+> boxplot(bwt~f.height, data=babies, ylim=ylim, col=col,lwd=lwd, xlab="Height", ylab=ylab)
+
+> boxplot(bwt~f.weight, data=babies, ylim=ylim, col=col,lwd=lwd, xlab="Weight", ylab=ylab)
+
+> ## 5. LS (without smoking)
+> fit1 = lm(bwt ~ height + weight + parity, na.action= na.exclude)
+
+> # check the fit
+> par(mfrow=c(1,2),cex.main= 1)
+
+> # Residual-plot, important tool in checking assumptions of model.
+> plot(fitted(fit1), resid(fit1), type="p", col=col, lwd=lwd, xlab="Fitted values  ..." ... [TRUNCATED] 
+
+> # Normality-assumption of residuals reasonable?
+> lim=max(resid(fit1), na.rm=T)
+
+> hist(resid(fit1),breaks=20,freq=F,xlim=c(-lim,lim),ylim=c(0,0.025), col=col,lwd=lwd,main="Normality check",xlab="Residual values of Model 1",ylab="D ..." ... [TRUNCATED] 
+
+> ## 6. LS (with smoking)
+> fit2 = lm(bwt ~ height + weight + parity + smoke, na.action= na.exclude)
+
+> summary(fit1)
+
+Call:
+lm(formula = bwt ~ height + weight + parity, na.action = na.exclude)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-66.838 -10.573   0.839  11.086  55.647 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 33.97223   13.46180   2.524   0.0117 *  
+height       1.20245    0.22878   5.256 1.74e-07 ***
+weight       0.06933    0.02765   2.508   0.0123 *  
+parityis.FB -1.72786    1.19302  -1.448   0.1478    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 17.94 on 1193 degrees of freedom
+  (39 observations deleted due to missingness)
+Multiple R-squared: 0.04695,	Adjusted R-squared: 0.04456 
+F-statistic: 19.59 on 3 and 1193 DF,  p-value: 2.112e-12 
+
+
+> summary(fit2)
+
+Call:
+lm(formula = bwt ~ height + weight + parity + smoke, na.action = na.exclude)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-70.285 -10.093  -0.062  11.334  51.924 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 32.50175   13.06651   2.487   0.0130 *  
+height       1.32101    0.22231   5.942  3.7e-09 ***
+weight       0.04941    0.02698   1.831   0.0673 .  
+parityis.FB -1.89071    1.15514  -1.637   0.1019    
+smokeYes    -9.15033    1.03557  -8.836  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 17.34 on 1182 degrees of freedom
+  (49 observations deleted due to missingness)
+Multiple R-squared: 0.1068,	Adjusted R-squared: 0.1038 
+F-statistic: 35.33 on 4 and 1182 DF,  p-value: < 2.2e-16 
+
+
+> anova(fit1)
+Analysis of Variance Table
+
+Response: bwt
+            Df Sum Sq Mean Sq F value    Pr(>F)    
+height       1  15888 15888.1 49.3828 3.533e-12 ***
+weight       1   2348  2347.5  7.2965  0.007007 ** 
+parity       1    675   674.9  2.0976  0.147793    
+Residuals 1193 383827   321.7                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+> anova(fit2)
+Analysis of Variance Table
+
+Response: bwt
+            Df Sum Sq Mean Sq F value    Pr(>F)    
+height       1  16110 16110.3 53.5749 4.587e-13 ***
+weight       1   2278  2277.7  7.5745  0.006011 ** 
+parity       1    628   627.6  2.0872  0.148805    
+smoke        1  23478 23478.0 78.0761 < 2.2e-16 ***
+Residuals 1182 355435   300.7                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+> ## 7. multivariate vs. univariate
+> 
+> 
+> ## 8. other statistics
+> 
+> 
+> ## (extra) 9. ggplot2
+> 
+> 
+> detach(babies)

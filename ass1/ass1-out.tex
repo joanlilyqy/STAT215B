@@ -1,0 +1,539 @@
+\documentclass{article}\usepackage{graphicx, color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\definecolor{fgcolor}{rgb}{0.2, 0.2, 0.2}
+\newcommand{\hlnumber}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlfunctioncall}[1]{\textcolor[rgb]{0.501960784313725,0,0.329411764705882}{\textbf{#1}}}%
+\newcommand{\hlstring}[1]{\textcolor[rgb]{0.6,0.6,1}{#1}}%
+\newcommand{\hlkeyword}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlargument}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlcomment}[1]{\textcolor[rgb]{0.180392156862745,0.6,0.341176470588235}{#1}}%
+\newcommand{\hlroxygencomment}[1]{\textcolor[rgb]{0.43921568627451,0.47843137254902,0.701960784313725}{#1}}%
+\newcommand{\hlformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hleqformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlassignement}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlpackage}[1]{\textcolor[rgb]{0.588235294117647,0.709803921568627,0.145098039215686}{#1}}%
+\newcommand{\hlslot}[1]{\textit{#1}}%
+\newcommand{\hlsymbol}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlprompt}[1]{\textcolor[rgb]{0.2,0.2,0.2}{#1}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\today}
+\chead{Ying Qiao SID:21412301}
+\rhead{Stat215B Sp13: Assignment 1}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+
+%% for inline R code: if the inline code is not correctly parsed, you will see a message
+\newcommand{\rinline}[1]{SOMETHING WORNG WITH knitr}
+
+
+
+
+\begin{document}
+\section*{Data Preparation}
+
+\hspace{12 pt} Within \textit{babies.data}, there are 1236 observations of 7 
+important variables related to the live births.
+The data cleaning procedure is mainly focused on the missing value
+removal and catagorical variable conversion. 
+Among several variables, for example, \textit{gestation} indicating the days
+of pregnancy, labels missing values with the number of 999. On the other hand,
+\textit{parity} indicating whether the baby is the first-born, needs
+to be coded categorically with description of levels. 
+The initial cleaning results on the data frame \textit{babies} are
+shown below.
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+##    bwt gestation parity age height weight smoke
+## 1  120       284 not.FB  27     62    100    No
+## 2  113       282 not.FB  33     64    135    No
+## 3  128       279 not.FB  28     64    115   Yes
+## 4  123        NA not.FB  36     69    190    No
+## 5  108       282 not.FB  23     67    125   Yes
+## 6  136       286 not.FB  25     62     93    No
+## 7  138       244 not.FB  33     62    178    No
+## 8  132       245 not.FB  23     65    140    No
+## 9  120       289 not.FB  25     62    125    No
+## 10 143       299 not.FB  30     66    136   Yes
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+When working on the statistical claims, we need to add serveral categorical
+variables into the current data frame.
+\textit{premature} is added as a two-level factor variable to indicate
+whether a baby was born prematurely; and a premature birth is defined
+as occuring prior to the 37th week ($37\times 7 = 259$ days) of
+gestation. Similarly, \textit{f.height} and \textit{f.weight} are
+added to divide the mothers into groups based on median height and
+weight in the data. So the final clean data before any analysis is
+sketched below.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+##    bwt gestation parity age height weight smoke premature f.height  f.weight
+## 1  120       284 not.FB  27     62    100    No    not.PM    short     light
+## 2  113       282 not.FB  33     64    135    No    not.PM    short     heavy
+## 3  128       279 not.FB  28     64    115   Yes    not.PM    short     light
+## 4  123        NA not.FB  36     69    190    No      <NA>     tall     heavy
+## 5  108       282 not.FB  23     67    125   Yes    not.PM     tall     light
+## 6  136       286 not.FB  25     62     93    No    not.PM    short     light
+## 7  138       244 not.FB  33     62    178    No     is.PM    short     heavy
+## 8  132       245 not.FB  23     65    140    No     is.PM     tall     heavy
+## 9  120       289 not.FB  25     62    125    No    not.PM    short     light
+## 10 143       299 not.FB  30     66    136   Yes    not.PM     tall     heavy
+\end{verbatim}
+\end{kframe}\begin{figure}[]
+
+
+{\centering \includegraphics[width=.6\linewidth]{figure/latex-ass1-1} 
+
+}
+
+\caption[Initial check of the dataset]{Initial check of the dataset\label{fig:ass1-1}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+We can get an initial feel for the data by looking at the histogram of
+one of the important variable, \textit{gestation}. The proportion of
+premature pregnancy (shorter than 259 days) is around 30 percent, which is suitable for
+analysis done on grouping the mothers based on this particular
+variable. Similar initial checks are also done but will not be shown
+here due to redundancy.
+
+
+\newpage
+\section*{Claim 1}
+\subsection*{Mothers who smoke deliver premature babies more often
+  than mothers who do not.}
+
+\hspace{12 pt} Long story short, this claim is NOT well supported with
+this dataset.
+
+\subsubsection*{1. Graphical comparisons of the gestation distribution}
+\hspace{12 pt} I tried two different ways of graphical comparisons,
+histogram in parallel and group boxplot, both shown below. The gestation distributions
+of smoking mothers and of non-smoking mothers DO NOT show a
+significant difference in either mean or spread. 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=.6\linewidth]{figure/latex-ass1-111} 
+
+}
+
+\caption[Graphical comparisons of the gestation distribution]{Graphical comparisons of the gestation distribution\label{fig:ass1-111}}
+\end{figure}
+
+\begin{figure}[]
+
+
+{\centering \includegraphics[width=.6\linewidth]{figure/latex-ass1-112} 
+
+}
+
+\caption[Graphical comparisons of the gestation distribution]{Graphical comparisons of the gestation distribution\label{fig:ass1-112}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+\subsubsection*{2. Tabular comparisons of the factor variables}
+\hspace{12 pt} With the added two-level factor variable,
+\textit{premature}, indicating whether the baby was born prematurely,
+we use the two factors, \textit{smoke} and \textit{premature}, to
+carry out a relevant tabular comparison of distributions with results
+shown below. 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+tb.PS <- \hlfunctioncall{table}(premature, smoke)
+\hlfunctioncall{ftable}(tb.PS)
+\end{alltt}
+\begin{verbatim}
+##           smoke  No Yes
+## premature              
+## not.PM          677 439
+## is.PM            56  41
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\subsubsection*{3. Visual tabular comparisons}
+\hspace{12 pt} The figure shown below allows us to carry out visually the
+tabular comparisons of the factor variables, \textit{smoke} and \textit{premature}.
+We can NOT tell significant difference in the distribution of
+gestation between smoking and non-smoking groups from the figure.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=.6\linewidth]{figure/latex-ass1-13} 
+
+}
+
+\caption[Visual tabular comparisons]{Visual tabular comparisons\label{fig:ass1-13}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+\subsubsection*{4. Hypothesis test on the tabular comparison}
+\hspace{12 pt} With the given table shown above, we want to conduct
+hypothesis test formally for our claim. \newline
+
+
+\hspace{12 pt}\textit{H0: smoking and non-smoking mothers have the
+  same rate of premature delivery} \newline
+\vspace{2 pt} 
+\hspace{24 pt}\textit{HA: smoking and non-smoking mothers DO NOT have the
+  same rate of premature delivery} \newline
+
+
+Two tests are conducted, $Chi-squre$ and $Fisher$, and both have shown a
+fairly large p-value, which indicates that we should not reject the
+null hypothesis.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlfunctioncall{chisq.test}(tb.PS)
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Pearson's Chi-squared test with Yates' continuity correction
+## 
+## data:  tb.PS 
+## X-squared = 0.2098, df = 1, p-value = 0.6469
+\end{verbatim}
+\newpage
+\begin{alltt}
+\hlfunctioncall{fisher.test}(tb.PS)
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Fisher's Exact Test for Count Data
+## 
+## data:  tb.PS 
+## p-value = 0.5893
+## alternative hypothesis: true odds ratio is not equal to 1 
+## 95 percent confidence interval:
+##  0.7221 1.7530 
+## sample estimates:
+## odds ratio 
+##      1.129
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\subsubsection*{5. Hypothesis test on the overall average comparison}
+\hspace{12 pt} With the data, we want to conduct
+hypothesis test formally for a related question concerning the overall
+average gestation time for the \textit{smoke} groups. \newline
+
+
+\hspace{12 pt} \textit{H0: smoking and non-smoking mothers have the same overall average gestation time} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: smoking mothers have shorter overall average gestation time} \newline
+
+
+Similarly, two one-sided tests are conducted, $t$ and $Wilcox$, and both have shown a
+fairly large p-value, which indicates that we should not reject the
+null hypothesis.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlfunctioncall{t.test}(gestation ~ smoke, alternative = \hlstring{"less"})
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  gestation by smoke 
+## t = 2.394, df = 1093, p-value = 0.9916
+## alternative hypothesis: true difference in means is less than 0 
+## 95 percent confidence interval:
+##   -Inf 3.726 
+## sample estimates:
+##  mean in group No mean in group Yes 
+##             280.2             278.0
+\end{verbatim}
+\begin{alltt}
+\hlfunctioncall{wilcox.test}(gestation ~ smoke, alternative = \hlstring{"less"})
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Wilcoxon rank sum test with continuity correction
+## 
+## data:  gestation by smoke 
+## W = 195867, p-value = 0.9996
+## alternative hypothesis: true location shift is less than 0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+
+
+\newpage
+\section*{Claim 2}
+\subsection*{Cigarette smoking has a stronger relationship to infant
+  birth weight than serveral other relevant covariates.}
+
+\hspace{12 pt} Long story short, this dataset DOES support this claim.
+
+\subsubsection*{1. First-borns comparisons}
+\hspace{12 pt} With the data, we want to conduct
+hypothesis test formally for comparing the influence from relevant
+variables on birth-weight \textit{bwt}. \newline
+
+
+\hspace{12 pt} \textit{H0: the difference in the average bwt between smoking/non-smoking mothers is the same as that of firt-borns/non-first-borns} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: the difference in the average bwt between
+  smoking/non-smoking mothers is NOT the same as that of firt-borns/non-first-borns} \newline
+
+
+With the assumption of $i.i.d$ samples, we conduct a Wald test on the
+groups, that is, \newline
+$w = \displaystyle \frac{|\delta A| - |\delta B|}{se(\delta A - \delta  B)}$\newline
+$\delta A=\bar X_{smoker} - \bar X_{non-smoker}; 
+\delta B=\bar X_{first-born} - \bar X_{non-first-born}$\newline
+$var(\delta A) = var(\bar X_{smoker})+var(\bar X_{non-smoker});
+var(\delta B) = var(\bar X_{first-born})+var(\bar X_{non-first-born});$\newline
+$var(\delta A - \delta B) = var(\delta A) + var(\delta B) -
+2cov(\delta A, \delta B)$\newline
+The details of the covariance calculations are given in the R code. So
+from this, we can get the test statistic and p-value for the test. The
+results are given below in the table for better comparison.
+
+\subsubsection*{2. Mother height comparisons}
+\hspace{12 pt} Similar to 1., we conduct the test and show the results
+in the table below.
+
+\subsubsection*{3. Mother weight comparisons}
+\hspace{12 pt} Similar to 1., we conduct the test and show the results
+in the table below.
+
+
+\begin{table}
+\caption{Comparison of univariate influence against smoke} \label{tab:title}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+Variable & Wald-test statistic & p-value (Normal) \\ \hline
+{$parity$} & 0.2851 & 0.3878 \\ 
+{$height$} & 0.1185 & 0.4528 \\ 
+{$weight$} & 0.1460 & 0.4419 \\ 
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\subsubsection*{4. Visual comparison on distributions}
+\hspace{12 pt} In addition to the given table shown above, we want to
+make multi-panel comparions of the whole distribution visually as the
+figure shown below. 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=.8\linewidth]{figure/latex-ass1-24} 
+
+}
+
+\caption[Difference  in bwt comparison of relevant variables]{Difference  in bwt comparison of relevant variables\label{fig:ass1-24}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+\subsubsection*{5. Multiple linear regression without smoking status}
+\hspace{12 pt} With the data, we fit a linear regression model
+
+
+\hspace{24 pt}
+$bwt_1 = \beta_{1,0} + \beta_{1,1}height + \beta_{1,2}weight + \beta_{1,3}parity$. \newline
+The summary is shown below and we check the fit by two plots. The one
+with $fitted \sim residual$ is for checking the linear model $Y \sim
+N(\beta^Tx,\sigma)$; while the histogram of the residuals from the
+fitting is for checking the normality assumption of the residual
+distribution. From visual inspection, both assumptions are satisfied.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass2-25} 
+
+}
+
+\caption[Model 1 fitting check]{Model 1 fitting check\label{fig:ass2-25}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+\subsubsection*{6. Multiple linear regression with smoking status}
+\hspace{12 pt} With the data, we fit another linear regression model
+
+
+\hspace{24 pt}
+$bwt_1 = \beta_{1,0} + \beta_{1,1}height + \beta_{1,2}weight +
+\beta_{1,3}parity + \beta_{1,4}smoke$. \newline
+The model is also checked for normality assumptions and is well satisfied.
+
+
+We summarize the two models in the table below for easy informal
+comparison. As shown in the table, the model 2 (with \textit{smoke} factor) has lower
+residual standard error, higher $R^2$, lower p-value as compared to
+the model 1 (without \textit{smoke} factor). We can conclude that M2
+is better and that the \textit{smoke} factor DOES have a strong relationship
+to infant birth weight \textit{bwt}.
+
+\begin{table}
+\caption{Comparison of linear regression models} \label{tab:title}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+Multiple Linear Regression & M1 : bwt~height+weight+parity & M2 : bwt~height+weight+parity+smoke \\ \hline
+Residual standard error & {17.94 (df=1193)} & {17.34 (df=1182)} \\ 
+{Multiple $R^2$} & 0.04695 & 0.1068 \\ 
+{Adjusted $R^2$} & 0.04456 & 0.1038 \\ 
+F-statistic & 19.59 & 35.33 \\ 
+p-value & 2.112e-12 & <2.2e-16 \\
+\end{tabular}
+\end{center}
+\end{table}
+
+
+Meanwhile, ANOVA is carried out for formal comparison between the two
+linear models. From the ANOVA results, we can see that \textit{smoke}
+explains the majority sum of squres (SS) compared to all the other
+relevant variables (\textit{height,weight,parity}), with the smallest
+p-value. This also supports our claim 2.
+
+\newpage
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlfunctioncall{anova}(fit1)
+\end{alltt}
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: bwt
+##             Df Sum Sq Mean Sq F value  Pr(>F)    
+## height       1  15888   15888    49.4 3.5e-12 ***
+## weight       1   2348    2348     7.3   0.007 ** 
+## parity       1    675     675     2.1   0.148    
+## Residuals 1193 383827     322                    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlfunctioncall{anova}(fit2)
+\end{alltt}
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: bwt
+##             Df Sum Sq Mean Sq F value  Pr(>F)    
+## height       1  16110   16110   53.57 4.6e-13 ***
+## weight       1   2278    2278    7.57   0.006 ** 
+## parity       1    628     628    2.09   0.149    
+## smoke        1  23478   23478   78.08 < 2e-16 ***
+## Residuals 1182 355435     301                    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+\subsubsection*{7. Pros and Cons of multiple-regression approach}
+\hspace{12 pt} As compared to the univariate comparisons we carried
+out initially, the multiple-regression approach gives more accurate
+results of the relative influence on the birth-weight among serveral
+relevant variable. Null acceptance can be derived purely from the p-values of the Wald
+tests for univariate comparison, which seems to underestimate the
+relationship of $smoke$ to $bwt$. The multiple regression models have
+shown us that the $smoke$ is the single most influential variable for
+the $bwt$ changes. However, the regression approach may be overly
+optimistic about the claim as visual inspection on the plots does not
+give that much confidence.
+
+ 
+
+
+\end{document}

@@ -1,0 +1,329 @@
+\documentclass{article}
+
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\today}
+\chead{Ying Qiao SID:21412301}
+\rhead{Stat215B Sp13: Assignment 1}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+
+%% for inline R code: if the inline code is not correctly parsed, you will see a message
+\newcommand{\rinline}[1]{SOMETHING WORNG WITH knitr}
+%% begin.rcode setup, include=FALSE
+% opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-')
+%% end.rcode
+
+
+\begin{document}
+\section*{Data Preparation}
+
+\hspace{12 pt} Within \textit{babies.data}, there are 1236 observations of 7 
+important variables related to the live births.
+The data cleaning procedure is mainly focused on the missing value
+removal and catagorical variable conversion. 
+Among several variables, for example, \textit{gestation} indicating the days
+of pregnancy, labels missing values with the number of 999. On the other hand,
+\textit{parity} indicating whether the baby is the first-born, needs
+to be coded categorically with description of levels. 
+The initial cleaning results on the data frame \textit{babies} are
+shown below.
+
+
+%%  begin.rcode ass1-00, cache=TRUE, echo=FALSE, results="markup", warning=FALSE
+%%babies <- read.table("babies.data", header=T)
+%%babies$gestation[babies$gestation == 999] <- as.numeric("NA")
+%%babies$age[babies$age == 99] <- as.numeric("NA")
+%%babies$height[babies$height == 99] <- as.numeric("NA")
+%%babies$weight[babies$weight == 999] <- as.numeric("NA")
+%%babies$smoke[babies$smoke == 9] <- as.numeric("NA")
+%%babies$parity <- factor(babies$parity)
+%%levels(babies$parity) <- c("not.FB","is.FB") # first-born
+%%babies$smoke <- factor(babies$smoke)
+%%levels(babies$smoke) <- c("No","Yes") # smokes
+%%head(babies, n = 10)
+%%  end.rcode
+
+When working on the statistical claims, we need to add serveral categorical
+variables into the current data frame.
+\textit{premature} is added as a two-level factor variable to indicate
+whether a baby was born prematurely; and a premature birth is defined
+as occuring prior to the 37th week ($37\times 7 = 259$ days) of
+gestation. Similarly, \textit{f.height} and \textit{f.weight} are
+added to divide the mothers into groups based on median height and
+weight in the data. So the final clean data before any analysis is
+sketched below.
+
+%%  begin.rcode ass1-01, cache=TRUE, echo=FALSE,results="markup",warning=FALSE,dev='pdf',fig.align="center",out.width=".6\\linewidth",fig.cap="Initial check of the dataset"
+%%babies$premature <- factor(babies$gestation < 37*7)
+%%levels(babies$premature) <- c("not.PM","is.PM") # premature factor
+
+%%babies$f.height <- factor(babies$height > median(babies$height, na.rm=T))
+%%levels(babies$f.height) <- c("short","tall") # height factor
+
+%%babies$f.weight <- factor(babies$weight > median(babies$weight, na.rm=T))
+%%levels(babies$f.weight) <- c("light","heavy") # height factor
+
+%%head(babies, n = 10)
+%%hist(babies$gestation,col="blue",lwd=2, main="Distribution of overall gestation",xlab="Days of pregnancy",ylab="Counts of mothers")
+%%  end.rcode
+
+We can get an initial feel for the data by looking at the histogram of
+one of the important variable, \textit{gestation}. The proportion of
+premature pregnancy (shorter than 259 days) is around 30 percent, which is suitable for
+analysis done on grouping the mothers based on this particular
+variable. Similar initial checks are also done but will not be shown
+here due to redundancy.
+
+
+\newpage
+\section*{Claim 1}
+\subsection*{Mothers who smoke deliver premature babies more often
+  than mothers who do not.}
+
+\hspace{12 pt} Long story short, this claim is NOT well supported with
+this dataset.
+
+\subsubsection*{1. Graphical comparisons of the gestation distribution}
+\hspace{12 pt} I tried two different ways of graphical comparisons,
+histogram in parallel and group boxplot, both shown below. The gestation distributions
+of smoking mothers and of non-smoking mothers DO NOT show a
+significant difference in either mean or spread. 
+
+%%  begin.rcode ass1-11, cache=TRUE, echo=FALSE,results="markup",message=FALSE,dev='pdf',fig.align="center",out.width=".6\\linewidth",fig.cap="Graphical comparisons of the gestation distribution"
+%%attach(babies)
+%%xlim=range(gestation, na.rm=T); ylim=c(0,0.04);
+%%lwd=2;col="blue"; xlab="Days of pregnancy"; breaks=seq(140,360,10)
+%%boxplot(gestation~smoke, data=babies, col=col,lwd=lwd, xlab="Smoke", ylab=xlab)
+%%par(mfrow=c(2,1),cex.main= 1)
+%%hist(gestation[smoke == "No"],breaks=breaks,freq=F, xlim=xlim,ylim=ylim, col=col,lwd=lwd,main="",xlab=xlab,ylab="Non-smoking mother")
+%%hist(gestation[smoke == "Yes"],breaks=breaks,freq=F, xlim=xlim,ylim=ylim, col=col,lwd=lwd,main="",xlab=xlab,ylab="Smoking mother")
+%%  end.rcode
+
+\subsubsection*{2. Tabular comparisons of the factor variables}
+\hspace{12 pt} With the added two-level factor variable,
+\textit{premature}, indicating whether the baby was born prematurely,
+we use the two factors, \textit{smoke} and \textit{premature}, to
+carry out a relevant tabular comparison of distributions with results
+shown below. 
+
+%%  begin.rcode ass1-12, cache=TRUE, results="markup", message=FALSE, dev='pdf', fig.align="center",out.width=".6\\linewidth"
+%%tb.PS <- table(premature, smoke)
+%%ftable(tb.PS)
+%%  end.rcode
+
+\subsubsection*{3. Visual tabular comparisons}
+\hspace{12 pt} The figure shown below allows us to carry out visually the
+tabular comparisons of the factor variables, \textit{smoke} and \textit{premature}.
+We can NOT tell significant difference in the distribution of
+gestation between smoking and non-smoking groups from the figure.
+%%  begin.rcode ass1-13, cache=TRUE, echo=FALSE, results="markup",message=FALSE, dev='pdf',fig.align="center",out.width=".6\\linewidth", fig.cap="Visual tabular comparisons"
+%%require(stats)
+%%mosaicplot(smoke ~ premature, data=babies, main = "Gestation distribution", color = TRUE)
+%%  end.rcode
+
+\subsubsection*{4. Hypothesis test on the tabular comparison}
+\hspace{12 pt} With the given table shown above, we want to conduct
+hypothesis test formally for our claim. \newline
+
+
+\hspace{12 pt}\textit{H0: smoking and non-smoking mothers have the
+  same rate of premature delivery} \newline
+\vspace{2 pt} 
+\hspace{24 pt}\textit{HA: smoking and non-smoking mothers DO NOT have the
+  same rate of premature delivery} \newline
+
+
+Two tests are conducted, $Chi-squre$ and $Fisher$, and both have shown a
+fairly large p-value, which indicates that we should not reject the
+null hypothesis.
+
+%%  begin.rcode ass1-14, cache=TRUE, results="markup", message=FALSE, dev='pdf', fig.align="center",out.width=".6\\linewidth"
+%%chisq.test(tb.PS)
+%%fisher.test(tb.PS)
+%%  end.rcode
+
+\subsubsection*{5. Hypothesis test on the overall average comparison}
+\hspace{12 pt} With the data, we want to conduct
+hypothesis test formally for a related question concerning the overall
+average gestation time for the \textit{smoke} groups. \newline
+
+
+\hspace{12 pt} \textit{H0: smoking and non-smoking mothers have the same overall average gestation time} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: smoking mothers have shorter overall average gestation time} \newline
+
+
+Similarly, two one-sided tests are conducted, $t$ and $Wilcox$, and both have shown a
+fairly large p-value, which indicates that we should not reject the
+null hypothesis.
+
+%%  begin.rcode ass1-15, cache=TRUE, results="markup", message=FALSE, dev='pdf', fig.align="center",out.width=".6\\linewidth"
+%%t.test(gestation ~ smoke, alternative = "less")
+%%wilcox.test(gestation ~ smoke, alternative = "less")
+%%  end.rcode
+
+
+
+
+\newpage
+\section*{Claim 2}
+\subsection*{Cigarette smoking has a stronger relationship to infant
+  birth weight than serveral other relevant covariates.}
+
+\hspace{12 pt} Long story short, this dataset DOES support this claim.
+
+\subsubsection*{1. First-borns comparisons}
+\hspace{12 pt} With the data, we want to conduct
+hypothesis test formally for comparing the influence from relevant
+variables on birth-weight \textit{bwt}. \newline
+
+
+\hspace{12 pt} \textit{H0: the difference in the average bwt between smoking/non-smoking mothers is the same as that of firt-borns/non-first-borns} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: the difference in the average bwt between
+  smoking/non-smoking mothers is NOT the same as that of firt-borns/non-first-borns} \newline
+
+
+With the assumption of $i.i.d$ samples, we conduct a Wald test on the
+groups, that is, \newline
+$w = \displaystyle \frac{|\delta A| - |\delta B|}{se(\delta A - \delta  B)}$\newline
+$\delta A=\bar X_{smoker} - \bar X_{non-smoker}; 
+\delta B=\bar X_{first-born} - \bar X_{non-first-born}$\newline
+$var(\delta A) = var(\bar X_{smoker})+var(\bar X_{non-smoker});
+var(\delta B) = var(\bar X_{first-born})+var(\bar X_{non-first-born});$\newline
+$var(\delta A - \delta B) = var(\delta A) + var(\delta B) -
+2cov(\delta A, \delta B)$\newline
+The details of the covariance calculations are given in the R code. So
+from this, we can get the test statistic and p-value for the test. The
+results are given below in the table for better comparison.
+
+\subsubsection*{2. Mother height comparisons}
+\hspace{12 pt} Similar to 1., we conduct the test and show the results
+in the table below.
+
+\subsubsection*{3. Mother weight comparisons}
+\hspace{12 pt} Similar to 1., we conduct the test and show the results
+in the table below.
+
+
+\begin{table}
+\caption{Comparison of univariate influence against smoke} \label{tab:title}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+Variable & Wald-test statistic & p-value (Normal) \\ \hline
+{$parity$} & 0.2851 & 0.3878 \\ 
+{$height$} & 0.1185 & 0.4528 \\ 
+{$weight$} & 0.1460 & 0.4419 \\ 
+\end{tabular}
+\end{center}
+\end{table}
+
+
+\subsubsection*{4. Visual comparison on distributions}
+\hspace{12 pt} In addition to the given table shown above, we want to
+make multi-panel comparions of the whole distribution visually as the
+figure shown below. 
+
+%%  begin.rcode ass1-24, cache=TRUE, echo=FALSE, results="markup",message=FALSE, dev='pdf',fig.align="center",out.width=".8\\linewidth", fig.cap="Difference  in bwt comparison of relevant variables"
+%%par(mfrow=c(2,2),cex.main= 1)
+%%ylab="Birth weight";ylim=range(bwt,na.rm=T)
+%%boxplot(bwt~smoke, data=babies, ylim=ylim, col=col,lwd=lwd, xlab="Smoke", ylab=ylab)
+%%boxplot(bwt~parity, data=babies, ylim=ylim, col=col,lwd=lwd, xlab="First-born", ylab=ylab)
+%%boxplot(bwt~f.height, data=babies, ylim=ylim, col=col,lwd=lwd, xlab="Height", ylab=ylab)
+%%boxplot(bwt~f.weight, data=babies, ylim=ylim, col=col,lwd=lwd, xlab="Weight", ylab=ylab)
+%%  end.rcode
+
+\subsubsection*{5. Multiple linear regression without smoking status}
+\hspace{12 pt} With the data, we fit a linear regression model
+
+
+\hspace{24 pt}
+$bwt_1 = \beta_{1,0} + \beta_{1,1}height + \beta_{1,2}weight + \beta_{1,3}parity$. \newline
+The summary is shown below and we check the fit by two plots. The one
+with $fitted \sim residual$ is for checking the linear model $Y \sim
+N(\beta^Tx,\sigma)$; while the histogram of the residuals from the
+fitting is for checking the normality assumption of the residual
+distribution. From visual inspection, both assumptions are satisfied.
+
+%%  begin.rcode ass2-25, cache=TRUE, echo=FALSE, results="markup",message=FALSE, dev='pdf',fig.align="center",fig.width=6,fig.height=4,fig.cap="Model 1 fitting check"
+%%fit1 = lm(bwt ~ height + weight + parity, na.action= na.exclude)
+%%par(mfrow=c(1,2),cex.main= 1)
+%%plot(fitted(fit1), resid(fit1), type="p", col=col, lwd=lwd, xlab="Fitted values of Model 1", ylab="Residuals of Model 1", main="Fitting check")
+%%lim=max(resid(fit1), na.rm=T)
+%%hist(resid(fit1),breaks=20,freq=F,xlim=c(-lim,lim),ylim=c(0,0.025), col=col,lwd=lwd,main="Normality check",xlab="Residual values of Model 1",ylab="Density")
+%%  end.rcode
+
+\subsubsection*{6. Multiple linear regression with smoking status}
+\hspace{12 pt} With the data, we fit another linear regression model
+
+
+\hspace{24 pt}
+$bwt_1 = \beta_{1,0} + \beta_{1,1}height + \beta_{1,2}weight +
+\beta_{1,3}parity + \beta_{1,4}smoke$. \newline
+The model is also checked for normality assumptions and is well satisfied.
+
+
+We summarize the two models in the table below for easy informal
+comparison. As shown in the table, the model 2 (with \textit{smoke} factor) has lower
+residual standard error, higher $R^2$, lower p-value as compared to
+the model 1 (without \textit{smoke} factor). We can conclude that M2
+is better and that the \textit{smoke} factor DOES have a strong relationship
+to infant birth weight \textit{bwt}.
+
+\begin{table}
+\caption{Comparison of linear regression models} \label{tab:title}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+Multiple Linear Regression & M1 : bwt~height+weight+parity & M2 : bwt~height+weight+parity+smoke \\ \hline
+Residual standard error & {17.94 (df=1193)} & {17.34 (df=1182)} \\ 
+{Multiple $R^2$} & 0.04695 & 0.1068 \\ 
+{Adjusted $R^2$} & 0.04456 & 0.1038 \\ 
+F-statistic & 19.59 & 35.33 \\ 
+p-value & 2.112e-12 & <2.2e-16 \\
+\end{tabular}
+\end{center}
+\end{table}
+
+
+Meanwhile, ANOVA is carried out for formal comparison between the two
+linear models. From the ANOVA results, we can see that \textit{smoke}
+explains the majority sum of squres (SS) compared to all the other
+relevant variables (\textit{height,weight,parity}), with the smallest
+p-value. This also supports our claim 2.
+%%  begin.rcode ass2-26, cache=TRUE, echo=FALSE, results="markup",message=FALSE, dev='pdf',fig.align="center"
+%%fit2 = lm(bwt ~ height + weight + parity + smoke, na.action= na.exclude)
+%%  end.rcode
+%%  begin.rcode ass2-26-a, cache=TRUE, results="markup",message=FALSE, dev='pdf',fig.align="center"
+%%anova(fit1)
+%%anova(fit2)
+%%  end.rcode
+
+
+\subsubsection*{7. Pros and Cons of multiple-regression approach}
+\hspace{12 pt} As compared to the univariate comparisons we carried
+out initially, the multiple-regression approach gives more accurate
+results of the relative influence on the birth-weight among serveral
+relevant variable. Null acceptance can be derived purely from the p-values of the Wald
+tests for univariate comparison, which seems to underestimate the
+relationship of $smoke$ to $bwt$. The multiple regression models have
+shown us that the $smoke$ is the single most influential variable for
+the $bwt$ changes. However, the regression approach may be overly
+optimistic about the claim as visual inspection on the plots does not
+give that much confidence.
+
+ 
+
+
+\end{document}
