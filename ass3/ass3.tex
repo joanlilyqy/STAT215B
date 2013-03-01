@@ -1,0 +1,267 @@
+\documentclass{article}
+
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\today}
+\chead{Ying Qiao SID:21412301}
+\rhead{Stat215B Sp13: Assignment 3}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+
+%% for inline R code: if the inline code is not correctly parsed, you will see a message
+\newcommand{\rinline}[1]{SOMETHING WORNG WITH knitr}
+%% begin.rcode setup, include=FALSE
+% opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-')
+%% end.rcode
+
+
+\begin{document}
+\section*{Detective work}
+
+\hspace{12 pt} The Dade County spouse assault experiment was executed
+excellently as a randomized field experiment [Pate and Hamilton
+(1992), hereafter PH]. Since randomization does not justify logistic
+regression as presented in PH, we would like to recover the experimental
+data and conduct another anlysis that is justified by the randomization. 
+
+
+In order to conduct comparion on rates of re-abuse,
+between the treatment group (arrestees) and the control
+group, as well as the same rate comparison within the two subgroups
+(unemployed/employed subjects), we need the numbers in the following table:
+
+\begin{center}
+\begin{tabular}{l|l|l|l}
+                    & no arrest            & arrest                & \\ \hline
+unemployed & {$n_{00}/N_{00}$} & {$n_{01}/N_{01}$} & {$n_{0.}/N_{0.}$}\\ \hline
+employed     & {$n_{10}/N_{10}$} & {$n_{11}/N_{11}$} & {$n_{1.}/N_{1.}$}\\ \hline
+                    & {$n_{.0}/N_{.0}$}   & {$n_{.1}/N_{.1}$}  & {$n_{..}/N_{..}$}\\ 
+\end{tabular}
+\end{center}
+
+
+\subsubsection*{1. Subject counts}
+\hspace{12 pt} The total subject counts can be directly derived from the codebook and
+the dataset file \textit{part\_607}. After basic data cleaning, we
+re-group the data based on column \textit{act} into a new two-level
+column \textit{trass}, i.e. treament assgined, following the
+\textit{intention-to-treat} principle. So with cross-tabulation, we
+get all the \textit{N}'s for the table.
+
+%%  begin.rcode ass3-11, cache=TRUE,results="markup",message=FALSE,echo=FALSE
+%%unsub <- read.table("part6_907.txt", header=T)
+%%unsub$trass <- as.numeric(unsub$act == 1 | unsub$act == 4)
+%%N.tbl <- with(unsub, table(sempl, trass))
+%%N.tbl
+%%  end.rcode
+
+A simple sanity check on the matching of the data to the PH paper is
+done with the unemployment rate among the subjects, which is 
+\rinline{rowSums(N.tbl)[1] / sum(sum(N.tbl)) * 100}\% from the data and
+agrees with $29\%$ in the PH paper.
+
+
+\subsubsection*{2. Re-abusing subject counts}
+\hspace{12 pt} Without a proper linked dataset on the number of
+re-abusing subjects, we could only recover the \textit{n}'s from the
+PH Figure 1 percentages. We round the calculated numbers to the nearest integers to
+reflect the fact that they are real human counts.
+
+%%  begin.rcode ass3-12, cache=TRUE,results="markup",message=FALSE,echo=FALSE
+%%PH.per <- cbind(c(7.1,12.3),c(16.7,6.2)) / 100
+%%n.tbl <- round(N.tbl * PH.per)
+%%n.tbl
+%%  end.rcode
+
+A similar sanity check would be the re-abusing rates. The rate of
+re-abuse among arrestees is \rinline{colSums(n.tbl)[2] / colSums(N.tbl)[2] * 100}\%,
+which agrees with the $9.0\%$ in PH paper. Also, the re-abusing rate of
+non-arrestees is \rinline{colSums(n.tbl)[1] / colSums(N.tbl)[1] * 100}\%,  
+slightly bigger than the PH $10.6\%$ due to rounding.
+
+
+\subsubsection*{}
+So, the final result of our data recovery work gives the table below.
+
+\begin{center}
+\begin{tabular}{l|l|l|l}
+                    & no arrest     & arrest          & \\ \hline
+unemployed & {$10/139$} & {$21/124$} & {$31/263$}\\ \hline
+employed     & {$38/306$} & {$21/338$} & {$59/644$}\\ \hline
+                    & {$48/445$} & {$42/462$} & {$90/907$}\\ 
+\end{tabular}
+\end{center}
+
+
+
+
+\newpage
+\section*{Statistical work}
+\hspace{12 pt} Based on the recovered data, we would like to
+re-evaluate the three conclusions drawn in the PH paper based their
+logistic regression analyses. We would like to compare the relevant
+observed rates in the above table with serveral methods, including
+Fisher's exact test and two-sample test of equal binomial proportions.
+
+
+In more details, the two-sample test of equal binomial proportions use
+the test statistic
+\begin{center}
+$\displaystyle z=\frac{p_1 - p_2}{\sqrt{p(1-p)(\frac{1}{n_1}+\frac{1}{n_2})}}$
+\end{center}
+where $p_1=n_1/N_1$, $p_2=n_2/N_2$, $p=(n_1+n_2)/(N_1+N_2)$, and
+follows normal distribution check.\newline
+
+%%  begin.rcode ass3-20, cache=TRUE,results="hide",message=FALSE,echo=FALSE
+%%two.binom.test <- function (tbl) { # 2-by-2 table similar to Fisher test
+%%  p <- tbl[1, ] / colSums(tbl)
+%%  p.hat <- rowSums(tbl)[1] / sum(sum(tbl))
+%%  del.hat <- p[1] - p[2]
+%%  var.hat <- p.hat*(1-p.hat)*sum(1/colSums(tbl))
+%%  z.hat <- (del.hat) / sqrt(var.hat)
+%%  return (z.hat)
+%%}
+%%  end.rcode
+
+\subsubsection*{1. re-abuse $\sim$ arrest | employed}
+\hspace{12 pt} We would like to assess the conclusion that "Among
+employed suspects, arrest had a statistically significant deterrent
+effect on the occurrence of a subsequent assault", with the hypothesis
+testing given below.
+
+
+Among employed suspects,
+
+
+\hspace{12 pt} \textit{H0: the occurrence rate of a subsequent assault
+  is the same between the arrestees and non-arrestees} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: the re-abuse rate is higher among the
+  non-arrestees than that of the arrestees} \newline
+
+
+Employed suspects:
+
+%%  begin.rcode ass3-21, cache=TRUE,results="markup",message=FALSE,echo=FALSE
+%%cl1 <- matrix(c(n.tbl[2, ], (N.tbl-n.tbl)[2, ]), nrow=2, byrow=T,
+%%              dimnames = list(c("reabuse","non-recid"), c("non-arrest","arrest")))
+%%cl1
+%%fisher.test(cl1, alternative="greater")
+%%  end.rcode
+
+Using the test statistic given above, the $p$-value for the two-sample
+binomial test is \rinline{1 - pnorm(two.binom.test(cl1))}, which is
+close to that of Fisher's exact test. Both of them suggest that we can
+reject the null hypothesis and the drawn conclusion is acceptable.
+
+
+
+\subsubsection*{2. re-abuse $\sim$ arrest | unemployed}
+\hspace{12 pt} We would like to assess the conclusion that "Among
+unemployed suspects, ... significant increases in subsequent assault
+were associated with arrest", with the hypothesis
+testing given below.
+
+
+Among unemployed suspects,
+
+
+\hspace{12 pt} \textit{H0: the occurrence rate of a subsequent assault
+  is the same between the arrestees and non-arrestees} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: the re-abuse rate is lower among the
+  non-arrestees than that of the arrestees} \newline
+
+\newpage
+Unemployed suspects:
+%%  begin.rcode ass3-22, cache=TRUE,results="markup",message=FALSE,echo=FALSE
+%%cl2 <- matrix(c(n.tbl[1, ], (N.tbl-n.tbl)[1, ]), nrow=2, byrow=T,
+%%              dimnames = list(c("reabuse","non-recid"), c("non-arrest","arrest")))
+%%cl2
+%%fisher.test(cl2, alternative="less")
+%%  end.rcode
+
+
+Similarly, using the test statistic given above, the $p$-value for the two-sample
+binomial test is \rinline{pnorm(two.binom.test(cl2))}, which is also
+close to that of Fisher's exact test. Moreover, both of them suggest that we can
+reject the null hypothesis and the drawn conclusion in PH is acceptable.
+
+
+
+\subsubsection*{3. re-abuse $\sim$ arrest}
+\hspace{12 pt} We would like to assess the final conclusion that "[Among
+all suspects, there is] no statistically significant effect of arrest
+on the occurrence of a subsequent spouse assault", with the hypothesis
+testing given below.
+
+
+Among all suspects,
+
+
+\hspace{12 pt} \textit{H0: the occurrence rate of a subsequent assault
+  is the same between the arrestees and non-arrestees} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: the re-abuse rate is different among the
+  non-arrestees from the arrestees} \newline
+
+
+All suspects:
+
+%%  begin.rcode ass3-23, cache=TRUE,results="markup",message=FALSE,echo=FALSE
+%%cl3 <- cl1 + cl2
+%%cl3
+%%fisher.test(cl3, alternative="two.sided")
+%%  end.rcode
+
+Using the test statistic given above, the $p$-value for the two-sample
+binomial test is \rinline{pnorm(two.binom.test(cl3)) / 2}, which is
+close to that of Fisher's exact test. Both of them suggest that we can
+NOT reject the null hypothesis and the PH conclusion is acceptable.
+
+
+\newpage
+\subsubsection*{Randomization}
+\hspace{12 pt} About the Fisher's exact test, the $p$-value is
+computed conditionally on the row and column margins being
+constant. In our application, this assumption suggest that the total
+number of observed re-abusers would not change if there had been a
+different randomization outcome in the Dade County experiment. 
+
+In the Neyman model of experiment, the $Y_i^T$ and $Y_i^C$ is
+unknown but deterministic, with only the assignment $X_i$ being
+random. The total number of the observed re-abusers, in theory, can
+change in the overall population under a different random
+assignment. And if the employment rate is fixed, so will the
+subgroups. 
+However, in reality, this Fisher's exact test assumption could
+be really close to the truth if the $Y^T$'s and $Y^C$'s share similar
+success rate. This is verified by the similar $p$-values calculated by
+the two sample Binomial test.
+
+
+On the other hand, the binomial test
+concerns independent Bernoulli trials. In our experiment, the re-abuse
+outcomes are not considered as random coin flips, but only the
+treatment assginment is pure random. 
+
+However, the randomization can justify that the two distributions
+(treatment and control) are independent regardless of their underlying
+details of the distributions. Even though not exactly binomial, the
+distributions can be approximated by binomial distributions, generating
+$p$-values close to those in the Fisher's exact test, which casts
+hypergeometric distribution on the 2-by-2 table.
+
+
+\end{document}

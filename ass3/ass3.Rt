@@ -1,0 +1,157 @@
+> source("ass3.r",echo=T)
+
+> #### Ying Qiao
+> #### SID: 21412301
+> #### STAT 215B, Assignment 3, 3/1/2013
+> 
+> rm(list=ls())
+
+> #### Detective Work
+> #### N : total subject counts for various subgroups/margins
+> unsub <- read.table("part6_907.txt", header=T)
+
+> head(unsub)
+    caseno relat sempl act
+1 0400081H     1     1   2
+2 0407224H     1     1   1
+3 0409032H     1     1   2
+4 0408741H     1     1   2
+5 0418862H     1     1   2
+6 0420640H     1     1   2
+
+> with(unsub, table(act))
+act
+  1   2   3   4 
+458 357  88   4 
+
+> # --- from codebook | for reference here ---
+> # sempl:  0-unemployed;  1-employed;
+> # act:  treatment assigned | treatment delivered
+> #         1 .... [TRUNCATED] 
+
+> # create N table, margins can be derived
+> N.tbl <- with(unsub, table(sempl, trass))
+
+> N.tbl
+     trass
+sempl   0   1
+    0 139 124
+    1 306 338
+
+> # report the rate of unemployment among the subjects
+> rowSums(N.tbl)[1] / sum(sum(N.tbl)) * 100   # PH gives 29% for unemployment rate
+       0 
+28.99669 
+
+> #### n : number of re-abusing subjects
+> # --- from PH Figure 1.---
+> PH.per <- cbind(c(7.1,12.3),c(16.7,6.2)) / 100 # following the same 0/1 in N.t .... [TRUNCATED] 
+
+> # Similarly, create n table, margins can be derived
+> n.tbl <- round(N.tbl * PH.per)
+
+> n.tbl
+     trass
+sempl  0  1
+    0 10 21
+    1 38 21
+
+> # report the rate of re-abuse among non/-arrestees
+> colSums(n.tbl)[1] / colSums(N.tbl)[1] * 100 # PH gives 10.6% for non-arrestees
+       0 
+10.78652 
+
+> colSums(n.tbl)[2] / colSums(N.tbl)[2] * 100 # PH gives 9.0%  for arrestees
+       1 
+9.090909 
+
+> #### Statistical Work
+> # a - Fisher's exact test
+> # b - two sample test of equal binomial proportions
+> #     z = (p1-p2)/sqrt(p(1-p)(1/n1+1/n2))
+ .... [TRUNCATED] 
+
+> # 1. employed; re-abuse ~ arrest
+> # among employed subjects
+> # H0: the occurrence of a subsequent assault is the same between the two groups
+> # H .... [TRUNCATED] 
+
+> cl1
+          non-arrest arrest
+reabuse           38     21
+non-recid        268    317
+
+> fisher.test(cl1, alternative="greater")
+
+	Fisher's Exact Test for Count Data
+
+data:  cl1 
+p-value = 0.004715
+alternative hypothesis: true odds ratio is greater than 1 
+95 percent confidence interval:
+ 1.29723     Inf 
+sample estimates:
+odds ratio 
+  2.137882 
+
+
+> 1 - pnorm(two.binom.test(cl1))
+ non-arrest 
+0.003205728 
+
+> # 2. unemployed; re-abuse ~ arrest
+> # among unemployed subjects
+> # H0: the occurrence of a subsequent assault is the same between the two groups
+> .... [TRUNCATED] 
+
+> cl2
+          non-arrest arrest
+reabuse           10     21
+non-recid        129    103
+
+> fisher.test(cl2, alternative="less")
+
+	Fisher's Exact Test for Count Data
+
+data:  cl2 
+p-value = 0.01184
+alternative hypothesis: true odds ratio is less than 1 
+95 percent confidence interval:
+ 0.0000000 0.7900892 
+sample estimates:
+odds ratio 
+ 0.3816009 
+
+
+> pnorm(two.binom.test(cl2))
+non-arrest 
+0.00723056 
+
+> # 3. all; re-abuse ~ arrest
+> # among all subjects
+> # H0: the occurrence of a subsequent assault is the same between the two groups
+> # HA: the re- .... [TRUNCATED] 
+
+> cl3
+          non-arrest arrest
+reabuse           48     42
+non-recid        397    420
+
+> fisher.test(cl3, alternative="two.sided")
+
+	Fisher's Exact Test for Count Data
+
+data:  cl3 
+p-value = 0.4372
+alternative hypothesis: true odds ratio is not equal to 1 
+95 percent confidence interval:
+ 0.7635274 1.9199167 
+sample estimates:
+odds ratio 
+  1.208812 
+
+
+> pnorm(two.binom.test(cl3)) / 2
+non-arrest 
+ 0.4017074 
+> 

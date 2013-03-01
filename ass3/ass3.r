@@ -21,9 +21,10 @@ unsub$trass <- as.numeric(unsub$act == 1 | unsub$act == 4)
 
 # create N table, margins can be derived
 N.tbl <- with(unsub, table(sempl, trass))
+N.tbl
 
 # report the rate of unemployment among the subjects
-rowSums(N.tbl)[1] / sum(sum(N.tbl))   # PH gives 29% for unemployment rate
+rowSums(N.tbl)[1] / sum(sum(N.tbl)) * 100   # PH gives 29% for unemployment rate
 
 
 #### n : number of re-abusing subjects
@@ -32,10 +33,11 @@ PH.per <- cbind(c(7.1,12.3),c(16.7,6.2)) / 100 # following the same 0/1 in N.tbl
 
 # Similarly, create n table, margins can be derived
 n.tbl <- round(N.tbl * PH.per)
+n.tbl
 
 # report the rate of re-abuse among non/-arrestees
-colSums(n.tbl)[1] / colSums(N.tbl)[1]  # PH gives 10.6% for non-arrestees
-colSums(n.tbl)[2] / colSums(N.tbl)[2]  # PH gives 9.0%  for arrestees
+colSums(n.tbl)[1] / colSums(N.tbl)[1] * 100 # PH gives 10.6% for non-arrestees
+colSums(n.tbl)[2] / colSums(N.tbl)[2] * 100 # PH gives 9.0%  for arrestees
 
 
 #### Statistical Work
@@ -61,7 +63,7 @@ two.binom.test <- function (tbl) {
 cl1 <- matrix(c(n.tbl[2, ], (N.tbl-n.tbl)[2, ]), nrow=2, byrow=T,
               dimnames = list(c("reabuse","non-recid"), c("non-arrest","arrest")))
 cl1
-fisher.test(cl1, alternative="greater")$p.value
+fisher.test(cl1, alternative="greater")
 1 - pnorm(two.binom.test(cl1))
 
 
@@ -72,7 +74,7 @@ fisher.test(cl1, alternative="greater")$p.value
 cl2 <- matrix(c(n.tbl[1, ], (N.tbl-n.tbl)[1, ]), nrow=2, byrow=T,
               dimnames = list(c("reabuse","non-recid"), c("non-arrest","arrest")))
 cl2
-fisher.test(cl2, alternative="less")$p.value
+fisher.test(cl2, alternative="less")
 pnorm(two.binom.test(cl2))
 
 
@@ -82,7 +84,7 @@ pnorm(two.binom.test(cl2))
 # HA: the re-abuse rate is different in the non-arrest group from the treatment group
 cl3 <- cl1 + cl2
 cl3
-fisher.test(cl3, alternative="two.sided")$p.value
+fisher.test(cl3, alternative="two.sided")
 pnorm(two.binom.test(cl3)) / 2
 
 
