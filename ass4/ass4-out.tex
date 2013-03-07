@@ -1,0 +1,257 @@
+\documentclass{article}\usepackage{graphicx, color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\definecolor{fgcolor}{rgb}{0.2, 0.2, 0.2}
+\newcommand{\hlnumber}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlfunctioncall}[1]{\textcolor[rgb]{0.501960784313725,0,0.329411764705882}{\textbf{#1}}}%
+\newcommand{\hlstring}[1]{\textcolor[rgb]{0.6,0.6,1}{#1}}%
+\newcommand{\hlkeyword}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlargument}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlcomment}[1]{\textcolor[rgb]{0.180392156862745,0.6,0.341176470588235}{#1}}%
+\newcommand{\hlroxygencomment}[1]{\textcolor[rgb]{0.43921568627451,0.47843137254902,0.701960784313725}{#1}}%
+\newcommand{\hlformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hleqformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlassignement}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlpackage}[1]{\textcolor[rgb]{0.588235294117647,0.709803921568627,0.145098039215686}{#1}}%
+\newcommand{\hlslot}[1]{\textit{#1}}%
+\newcommand{\hlsymbol}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlprompt}[1]{\textcolor[rgb]{0.2,0.2,0.2}{#1}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\today}
+\chead{Ying Qiao SID:21412301}
+\rhead{Stat215B Sp13: Assignment 4}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{amssymb,amsmath}
+
+%% for inline R code: if the inline code is not correctly parsed, you will see a message
+\newcommand{\rinline}[1]{SOMETHING WORNG WITH knitr}
+
+
+
+
+\begin{document}
+\section*{Linear Model}
+
+\hspace{12 pt} With the given model (scalar)
+\begin{equation}
+\begin{split}
+&Y_i = X_i\beta + \epsilon_i \\
+&X_i = U_i + 2V_i + \delta_i
+\end{split}
+\end{equation}
+We have $i=1,...,n$,
+\begin{equation}
+\begin{split}
+U_i &\sim^{i.i.d.} N(0, 1)\\
+V_i &\sim^{i.i.d.} N(0,1) \\
+(\epsilon_i, \delta_i) &\sim^{i.i.d} N(\mu, \Sigma)
+\end{split}
+\end{equation}
+\begin{displaymath}
+\mu =
+  \begin{pmatrix}
+  0 \\
+  0
+  \end{pmatrix}
+, \Sigma = 
+  \begin{pmatrix}
+  \sigma^2 & \rho \\
+  \rho         & \sigma^2
+  \end{pmatrix}
+\end{displaymath}
+So, we can see that $X$ is endogenous and $(U,V)$ are instruments. We
+would like to use both OLS and IVLS to estimate parameter $\beta$ and
+$\sigma^2$.
+
+
+
+\section*{Parameter Estimation}
+\hspace{12 pt} In Monte-Carlo simulations (with $N=1000$ runs),
+we set the true parameter values to be 
+\begin{displaymath}
+\beta = 3, \sigma^2 = 1, \rho= 3/4
+\end{displaymath}
+With $n = 100$ vector $(U_i, V_i, \epsilon_i, \delta_i, X_i,
+Y_i)$ samples in each run, we can estimate parameters with different
+methods.
+
+
+
+
+\subsubsection*{1. Coefficient parameter estimate}
+\hspace{12 pt}  We can get estimates $\hat{\beta}_{OLS},
+\hat{\beta}_{IVLS}$ using OLS and IVLS. Here, in real implementation,
+IVLS is carried out as two-stage LS. 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+ols <- \hlfunctioncall{lm}(Y ~ X - 1)
+beta.hat.ols[i] <- ols$coeff
+
+iv <- \hlfunctioncall{lm}(X ~ U + V - 1)
+X.hat <- iv$fit
+ivls <- \hlfunctioncall{lm}(Y ~ X.hat - 1)
+beta.hat.ivls[i] <- ivls$coeff
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+The statistics from the MC simulations are given below in the table,
+and histogram in Figure 1.
+
+\begin{center}
+\begin{tabular}{l|r|r|}
+($\beta=3$)  & $\hat{\beta}_{OLS}$                 & $\hat{\beta}_{IVLS}$ \\ \hline
+mean             & 3.1258 & 3.0017 \\ \hline
+SD                 & 0.0379      & 0.046 \\ \hline
+RMS               & 0.1313 & 0.046 \\ 
+\end{tabular}
+\end{center}
+
+
+We can see that $\hat{\beta}_{IVLS}$ has smaller bias than
+$\hat{\beta}_{OLS}$,  thus smaller root mean-squared error
+(RMS). However, $\hat{\beta}_{OLS}$ has smaller standard deviation
+(SD) than $\hat{\beta}_{IVLS}$, which can also be seen in the
+histogram. Since IVLS is equivalent to two-stage OLS, when getting
+better unbiased estimate of the coefficient parameter, the SD of the
+estimate is aggregated from the two stages of LS, which is expected to
+be larger than simple OLS.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass4-1} 
+
+}
+
+\caption[Histogram of OLS and IVLS coefficient parameter estimates]{Histogram of OLS and IVLS coefficient parameter estimates\label{fig:ass4-1}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+
+
+\subsubsection*{2. Error variance parameter estimate}
+\hspace{12 pt} We estimate the error variance $\sigma^2$ in two
+ways. First, we plug in $\hat{\beta}_{IVLS}$ into the original model (1)
+and use the residuals for error variance parameter estimation. The
+second method that we employ use the residuals from the transformed
+equation
+\begin{equation}
+(Z'Z)^{-1/2}Z'Y = (Z'Z)^{-1/2}Z'X\beta + \eta
+\end{equation}
+where Z is the $n\times 2$ matrix of instruments, $X$ is the $n\times
+1$ design matrix and $Y$ is the $n\times 1$ vector of responses.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+SS <- \hlfunctioncall{sum}((Y - X * ivls$coeff)^2)
+sigma2.hat.ivls[i] <- SS/(n - 2)
+
+tZ <- \hlfunctioncall{t}(\hlfunctioncall{cbind}(U, V))
+ZZ.sqinv <- \hlfunctioncall{sqrt.m22}(\hlfunctioncall{solve}(\hlfunctioncall{tcrossprod}(tZ)))
+L <- ZZ.sqinv %*% tZ %*% Y
+M <- ZZ.sqinv %*% tZ %*% X
+trans <- \hlfunctioncall{lm}(L ~ M - 1)
+sigma2.hat.zz[i] <- \hlfunctioncall{sum}(trans$res^2)
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+The appropriate denominator for each method and their statistics from the MC
+simulations are given below in the table, and histogram in Figure 2.
+
+\begin{center}
+\begin{tabular}{l|r|r|}
+($\sigma^2=1$)  & Plug-in IVLS                 & Transformed OLS \\ \hline
+denominator       & $n-2$                           & $1$ \\ \hline
+mean                   & 1.0112  & 1.0106 \\ \hline
+SD                       & 0.1586       & 1.4424   \\
+\end{tabular}
+\end{center}
+
+We can see that $\hat{\sigma^2}_{IVLS}$ has almost the same bias as
+$\hat{\sigma^2}_{trans}$,  but much smaller SD. This can be seen from
+the histogram. The plug-in IVLS estimator keeps the normal error variance
+characteristics of the OLS. However, since the degree of freedom in
+the transformed model is only 2 (two instruments), the error variance
+is no longer normal, which gives much larger SD.
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass4-2} 
+
+}
+
+\caption[Histogram of IVLS and Transformed OLS error variance estimates]{Histogram of IVLS and Transformed OLS error variance estimates\label{fig:ass4-2}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+
+\end{document}
