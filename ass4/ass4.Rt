@@ -1,0 +1,101 @@
+> source("ass4.r",echo=T)
+
+> #### Ying Qiao
+> #### SID: 21412301
+> #### STAT 215B, Assignment 4, 3/8/2013
+> 
+> rm(list=ls())
+
+> require(MASS)
+Loading required package: MASS
+
+> #### Sqrt of 2-by-2 matrix
+> sqrt.m22 <- function(M){
++   s <- sqrt(det(M))
++   t <- sqrt(sum(diag(M)) + 2*s)
++   R <- M / t
++   diag(R) <- diag(R)  .... [TRUNCATED] 
+
+> #### estimation parameter definition
+> beta = 3
+
+> sigma2 = 1
+
+> rho = 3/4
+
+> #### simulation parameter definition
+> N.MC = 1000
+
+> n = 100
+
+> #### storing MC results
+> beta.hat.ols <- rep(0, N.MC)
+
+> beta.hat.ivls <- rep(0, N.MC)
+
+> sigma2.hat.ivls <- rep(0, N.MC)
+
+> sigma2.hat.zz <- rep(0, N.MC)
+
+> for (i in 1:N.MC){
++ #### LM simulation
++ # random sample generation
++ set.seed(i)
++ seeds <- round(runif(3)*1000)
++ 
++ set.seed(seeds[1])
++ U <- rn .... [TRUNCATED] 
+
+> #### MC results
+> ## beta
+> mean(beta.hat.ols)
+[1] 3.125755
+
+> sd(beta.hat.ols)
+[1] 0.03793583
+
+> sqrt(mean((beta.hat.ols - beta)^2))
+[1] 0.1313467
+
+> mean(beta.hat.ivls)
+[1] 3.001663
+
+> sd(beta.hat.ivls)
+[1] 0.0459786
+
+> sqrt(mean((beta.hat.ivls - beta)^2))
+[1] 0.04598569
+
+> #hist
+> xlim=range(beta.hat.ivls);
+
+> lwd=2;col="blue"; xlab="beta hat values"; breaks=seq(140,360,10)
+
+> par(mfrow=c(2,1),cex.main= 1)
+
+> hist(beta.hat.ols, xlim=xlim, col=col,lwd=lwd,main="",xlab=xlab,ylab="OLS estimator")
+
+> hist(beta.hat.ivls,xlim=xlim, col=col,lwd=lwd,main="",xlab=xlab,ylab="IVLS estimator")
+
+> ## sigma2
+> mean(sigma2.hat.ivls)
+[1] 1.011154
+
+> sd(sigma2.hat.ivls)
+[1] 0.1585945
+
+> mean(sigma2.hat.zz)
+[1] 1.010589
+
+> sd(sigma2.hat.zz)
+[1] 1.442409
+
+> #hist
+> lwd=2;col="blue"; xlab="sigma2 hat values"; breaks=seq(140,360,10)
+
+> par(mfrow=c(2,1),cex.main= 1)
+
+> hist(sigma2.hat.ivls, col=col,lwd=lwd,main="",xlab=xlab,ylab="IVLS Plug-in estimator")
+
+> hist(sigma2.hat.zz,   col=col,lwd=lwd,main="",xlab=xlab,ylab="Transformed estimator")
+> 
