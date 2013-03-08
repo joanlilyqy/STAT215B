@@ -49,22 +49,22 @@ Loading required package: MASS
 > #### MC results
 > ## beta
 > mean(beta.hat.ols)
-[1] 3.125755
+[1] 3.127862
 
 > sd(beta.hat.ols)
-[1] 0.03793583
+[1] 0.0377698
 
 > sqrt(mean((beta.hat.ols - beta)^2))
-[1] 0.1313467
+[1] 0.1333183
 
 > mean(beta.hat.ivls)
-[1] 3.001663
+[1] 3.003739
 
 > sd(beta.hat.ivls)
-[1] 0.0459786
+[1] 0.04477892
 
 > sqrt(mean((beta.hat.ivls - beta)^2))
-[1] 0.04598569
+[1] 0.04491247
 
 > #hist
 > xlim=range(beta.hat.ivls);
@@ -79,16 +79,16 @@ Loading required package: MASS
 
 > ## sigma2
 > mean(sigma2.hat.ivls)
-[1] 1.011154
+[1] 0.9939836
 
 > sd(sigma2.hat.ivls)
-[1] 0.1585945
+[1] 0.1475903
 
 > mean(sigma2.hat.zz)
-[1] 1.010589
+[1] 1.03812
 
 > sd(sigma2.hat.zz)
-[1] 1.442409
+[1] 1.506722
 
 > #hist
 > lwd=2;col="blue"; xlab="sigma2 hat values"; breaks=seq(140,360,10)
