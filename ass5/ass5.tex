@@ -9,7 +9,7 @@
 \pagestyle{fancy}
 \lhead{\today}
 \chead{Ying Qiao SID:21412301}
-\rhead{Stat215B Sp13: Assignment 4}
+\rhead{Stat215B Sp13: Assignment 5}
 \lfoot{}
 \cfoot{\thepage}
 \rfoot{}
@@ -174,7 +174,7 @@ Here, we can estimate
 %%  begin.rcode ass5-1-15,cache=TRUE,results="markup",message=FALSE,echo=FALSE
 %%n <- 10
 %%mu <- c(-.81, -.39, -.39, -.08, .69, .71, 1.28, 1.32, 1.89, 4.00)
-%%A.hat <- sum(mu^2) / n
+%%A.hat <- sum(mu^2) / (n-1)
 %%TSE <- (n*A.hat+2)/(A.hat+1)
 %%  end.rcode
 So, we get $\hat{A}=$ \rinline{A.hat} and $TSE=$ \rinline{TSE}, which is
@@ -183,7 +183,7 @@ close to the $8.13$ value in the table.
 
 \newpage
 \section*{Simulation}
-\hspace{12 pt} In Monte-Carlo simulations (with runs),
+\hspace{12 pt} In Monte-Carlo simulations (with $N=1000$ runs),
 we set the true parameter values to be 
 
 
@@ -191,8 +191,7 @@ we set the true parameter values to be
 
 \newpage
 \section*{Shrinking radon}
-\hspace{12 pt} In Monte-Carlo simulations (with runs),
-we set the true parameter values to be 
+\hspace{12 pt} In the data  
 
 
 
