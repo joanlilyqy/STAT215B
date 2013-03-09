@@ -1,0 +1,200 @@
+\documentclass{article}
+
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\today}
+\chead{Ying Qiao SID:21412301}
+\rhead{Stat215B Sp13: Assignment 4}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{amssymb,amsmath}
+\usepackage{bm}
+
+%% for inline R code: if the inline code is not correctly parsed, you will see a message
+\newcommand{\rinline}[1]{SOMETHING WORNG WITH knitr}
+%% begin.rcode setup, include=FALSE
+% opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-')
+%% end.rcode
+
+
+\begin{document}
+\section*{Math stats}
+Efron (2010) exercises
+
+\subsubsection*{1.1}
+With the given distribution
+\begin{displaymath}
+\begin{split}
+\mu \sim \mathcal{N}(0,A) \rightarrow  &
+f(\mu) = \frac{1}{\sqrt{2 \pi A}} \exp\{-\frac{\mu^2}{2A}\}  \\
+z|\mu \sim \mathcal{N}(0,1) \rightarrow & 
+f(z|\mu) = \frac{1}{\sqrt{2 \pi}} \exp\{-\frac{(z-\mu)^2}{2}\}
+\end{split}
+\end{displaymath}
+So, we have
+\begin{displaymath}
+\begin{split}
+f(\mu)\cdot f(z|\mu) &= \frac{1}{2\pi \sqrt{A}} \exp \{-\frac{1}{2}
+(\frac{A+1}{A}\mu^2 - 2\mu z + z^2)\} \\
+& = \frac{1}{2\pi \sqrt{A}} \exp \{-\frac{1}{2B}
+(\mu^2 - 2B\mu z + Bz^2)\} ;       B=\frac{A}{A+1} \\
+& = \frac{1}{2\pi \sqrt{A}} \exp \{-\frac{1}{2} (\frac{\mu -  Bz}{\sqrt{B}})^2\} 
+\cdot \exp \{-\frac{Az^2}{2(A+1)^2} \} 
+\end{split}
+\end{displaymath}
+Then, the integral
+\begin{displaymath}
+\begin{split}
+f(z) &= \int {f(\mu)f(z|\mu)} d\mu \\
+& = \frac{1}{2\pi \sqrt{A}} \exp \{-\frac{Az^2}{2(A+1)^2} \} 
+\cdot \sqrt{B} \int_{-\infty}^{+\infty}  
+\exp \{-\frac{1}{2} (\frac{\mu -  Bz}{\sqrt{B}})^2\} 
+d (\frac{\mu -  Bz}{\sqrt{B}}) \\
+& = \frac{\sqrt{B}}{\sqrt{2\pi A}} \exp \{-\frac{Az^2}{2(A+1)^2} \} 
+\end{split}
+\end{displaymath}
+Finally, we get
+\begin{displaymath}
+\begin{split}
+f(\mu |z) &= \frac{f(\mu)\cdot f(z|\mu)}{f(z)} \\
+& = \frac{1}{\sqrt{2\pi B}} \exp \{-\frac{1}{2} (\frac{\mu -  Bz}{\sqrt{B}})^2\} \\
+\end{split}
+\end{displaymath}
+that is, 
+\begin{displaymath}
+\mu |z \sim \mathcal{N}(Bz, B) , B= A/(A+1)
+\end{displaymath}
+
+
+\subsubsection*{1.2}
+(i) (1.17) \newline
+We have Bayes estimator
+\begin{displaymath}
+\hat{\bm{\mu}}^{(Bayes)} = B\bm{z}; B = \frac{A}{A+1}
+\end{displaymath}
+Then, the risk function (total square error loss)
+\begin{displaymath}
+\begin{split}
+R^{(Bayes)}(\bm{\mu}) &= E_{\bm{z|\mu}}\{||\hat{\bm{\mu}} - \bm{\mu}||^2\} \\
+& = E_{\bm{z|\mu}}\{||B\bm{z} - B\bm{\mu} + B\bm{\mu} - \bm{\mu}||^2\} \\
+& = B^2 E_{\bm{z|\mu}}\{||\bm{z} - \bm{\mu}||^2\} + (B-1)^2E_{\bm{z|\mu}}\{||\bm{\mu}||^2\}
+\end{split}
+\end{displaymath}
+With the length of $N$ vector $\bm{z|\mu} \sim \mathcal{N}_N(\bm{\mu},\bm{I})$, we have finally got
+\begin{displaymath}
+\begin{split}
+R^{(Bayes)}(\bm{\mu}) = B^2 N + (1-B)^2 ||\bm{\mu}||^2
+\end{split}
+\end{displaymath}
+(ii) (1.18) \newline
+With the length of $N$ vector $\bm{\mu} \sim \mathcal{N}_N(\bm{0},
+A\bm{I})$, using (1.17), the overall Bayes risk
+\begin{displaymath}
+\begin{split}
+R^{(Bayes)} & = E_{\bm{\mu}}\{ R^{(Bayes)}(\bm{\mu}) \} \\
+& = B^2 N + (1-B)^2 E_{\bm{\mu}} \{||\bm{\mu}||^2\}; B=\frac{A}{A+1} \\
+& = \frac{NA^2}{(A+1)^2} + \frac{1}{(A+1)^2} NA \\
+& = \frac{NA}{A+1}
+\end{split}
+\end{displaymath}
+
+
+\subsubsection*{1.4}
+(a) (1.31) \newline
+We have (1.30), that is
+\begin{displaymath}
+E_{\bm{z|\mu}} \{||\hat{\bm{\mu}} - \bm{\mu}||^2\} 
+= E_{\bm{z|\mu}} \{||\bm{z} - \hat{\bm{\mu}}||^2\} - N 
++ 2\sum_{i=1}^N E_{\bm{z|\mu}}\{\frac{\partial \hat{\mu}_i}{\partial z_i}\}
+\end{displaymath}
+Then, with 
+\begin{displaymath}
+\begin{split}
+\hat{\bm{\mu}}^{(JS)} &= (1 - \frac{N-2}{S}) \bm{z} \\
+S &=||\bm{z}||^2= \sum_{i=1}^N z_i^2
+\end{split}
+\end{displaymath}
+We get
+\begin{displaymath}
+\begin{split}
+E_{\bm{z|\mu}} \{||\hat{\bm{\mu}}^{(JS)} - \bm{\mu}||^2\} 
+& =  E_{\bm{z|\mu}} \{||\frac{N-2}{S} \bm{z}||^2\} - N + 2\sum_{i=1}^N
+E_{\bm{z|\mu}} \{(1-\frac{N-2}{S}) + \frac{N-2}{S^2} 2z_i^2 \}  \\
+& = E_{\bm{z|\mu}} \{(\frac{N-2}{S})^2 ||\bm{z}||^2\} - N + 
+2 E_{\bm{z|\mu}} \{N(1-\frac{N-2}{S}) + \frac{2(N-2)}{S^2} \sum_{i=1}^N z_i^2\} \\
+& = E_{\bm{z|\mu}} \{\frac{(N-2)^2}{S} \} - N + 2N -
+2 E_{\bm{z|\mu}} \{\frac{N(N-2)}{S} - \frac{2(N-2)}{S} \} \\
+& = N - E_{\bm{z|\mu}} \{\frac{(N-2)^2}{S} \}
+\end{split}
+\end{displaymath}
+(b) (1.24) \newline
+We have (1.31), that is shown above; and with marginal 
+$\bm{z} \sim \mathcal{N}_N(\bm{0},(A+1)\bm{I})$, 
+\begin{displaymath}
+E\{ \frac{N-2}{S} \} = \frac{1}{A+1}
+\end{displaymath}
+So we can derive that
+\begin{displaymath}
+\begin{split}
+R^{(JS)} & = E_{\bm{\mu}} \{ R^{(JS)} (\bm{\mu}) \} \\
+& = E_{\bm{\mu}} \{ E_{\bm{z|\mu}} \{||\hat{\bm{\mu}}^{(JS)} - \bm{\mu}||^2\} \} \\
+& = N - E_{\bm{\mu}} \{ E_{\bm{z|\mu}} \{ \frac{(N-2)^2}{S} \} \} \\
+& = N - (N-2) E_{\bm{z}} \{ \frac{N-2}{S} \} \\
+& = N - \frac{N-2}{A+1}  = N \frac{A}{A+1} + \frac{2}{A+1}
+\end{split}
+\end{displaymath}
+
+
+\subsubsection*{1.5}
+If we assume in Table 1.2, for $i = 1, ..., n$,
+$\mu_i \sim \mathcal{N}(0, A)$, and we also have
+$\bm{z|\mu} \sim \mathcal{N}_n(\bm{\mu},\bm{I})$, then we can use all the
+conclusions from the hierachical Normal-Normal model. \newline
+So based on the derivations in the book, the simulated total square
+error of the James-Stein estimator should be close to the theoretical 
+value, i.e. Bayes risk of JS estimator.
+\begin{displaymath}
+TSE \sim R^{(JS)} = (nA + 2)/(A+1)
+\end{displaymath}
+Here, we can estimate
+\begin{displaymath}
+\hat{A} = \frac{1}{n} \sum_{i=1}^{n=10} \mu_i^2
+\end{displaymath}
+%%  begin.rcode ass5-1-15,cache=TRUE,results="markup",message=FALSE,echo=FALSE
+%%n <- 10
+%%mu <- c(-.81, -.39, -.39, -.08, .69, .71, 1.28, 1.32, 1.89, 4.00)
+%%A.hat <- sum(mu^2) / n
+%%TSE <- (n*A.hat+2)/(A.hat+1)
+%%  end.rcode
+So, we get $\hat{A}=$ \rinline{A.hat} and $TSE=$ \rinline{TSE}, which is
+close to the $8.13$ value in the table.
+
+
+\newpage
+\section*{Simulation}
+\hspace{12 pt} In Monte-Carlo simulations (with runs),
+we set the true parameter values to be 
+
+
+
+
+\newpage
+\section*{Shrinking radon}
+\hspace{12 pt} In Monte-Carlo simulations (with runs),
+we set the true parameter values to be 
+
+
+
+
+\end{document}
