@@ -119,7 +119,7 @@ methods.
 %%beta.hat.ivls[i] <- ivls$coeff
 
 %%SS <- sum((Y - X*ivls$coeff)^2)
-%%sigma2.hat.ivls[i] <- SS / (n - 2)
+%%sigma2.hat.ivls[i] <- SS / (n - 1)
 
 %%tZ <- t(cbind(U,V))
 %%ZZ.sqinv <- sqrt.m22(solve(tcrossprod(tZ)))
@@ -192,7 +192,7 @@ where Z is the $n\times 2$ matrix of instruments, $X$ is the $n\times
 
 %%  begin.rcode ass4-sigma, cache=TRUE,results="markup",message=FALSE
 %%SS <- sum((Y - X*ivls$coeff)^2)
-%%sigma2.hat.ivls[i] <- SS / (n - 2)
+%%sigma2.hat.ivls[i] <- SS / (n - 1)
 
 %%tZ <- t(cbind(U,V))
 %%ZZ.sqinv <- sqrt.m22(solve(tcrossprod(tZ)))
@@ -208,7 +208,7 @@ simulations are given below in the table, and histogram in Figure 2.
 \begin{center}
 \begin{tabular}{l|r|r|}
 ($\sigma^2=1$)  & Plug-in IVLS                 & Transformed OLS \\ \hline
-denominator       & $n-2$                           & $1$ \\ \hline
+denominator       & $n-1$                           & $1$ \\ \hline
 mean                   & \rinline{mean(sigma2.hat.ivls)}  & \rinline{mean(sigma2.hat.zz)} \\ \hline
 SD                       & \rinline{sd(sigma2.hat.ivls)}       & \rinline{sd(sigma2.hat.zz)}   \\
 \end{tabular}

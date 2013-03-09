@@ -156,9 +156,9 @@ and histogram in Figure 1.
 \begin{center}
 \begin{tabular}{l|r|r|}
 ($\beta=3$)  & $\hat{\beta}_{OLS}$                 & $\hat{\beta}_{IVLS}$ \\ \hline
-mean             & 3.1258 & 3.0017 \\ \hline
-SD                 & 0.0379      & 0.046 \\ \hline
-RMS               & 0.1313 & 0.046 \\ 
+mean             & 3.1279 & 3.0037 \\ \hline
+SD                 & 0.0378      & 0.0448 \\ \hline
+RMS               & 0.1333 & 0.0449 \\ 
 \end{tabular}
 \end{center}
 
@@ -205,7 +205,7 @@ where Z is the $n\times 2$ matrix of instruments, $X$ is the $n\times
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 SS <- \hlfunctioncall{sum}((Y - X * ivls$coeff)^2)
-sigma2.hat.ivls[i] <- SS/(n - 2)
+sigma2.hat.ivls[i] <- SS/(n - 1)
 
 tZ <- \hlfunctioncall{t}(\hlfunctioncall{cbind}(U, V))
 ZZ.sqinv <- \hlfunctioncall{sqrt.m22}(\hlfunctioncall{solve}(\hlfunctioncall{tcrossprod}(tZ)))
@@ -224,9 +224,9 @@ simulations are given below in the table, and histogram in Figure 2.
 \begin{center}
 \begin{tabular}{l|r|r|}
 ($\sigma^2=1$)  & Plug-in IVLS                 & Transformed OLS \\ \hline
-denominator       & $n-2$                           & $1$ \\ \hline
-mean                   & 1.0112  & 1.0106 \\ \hline
-SD                       & 0.1586       & 1.4424   \\
+denominator       & $n-1$                           & $1$ \\ \hline
+mean                   & 0.994  & 1.0381 \\ \hline
+SD                       & 0.1476       & 1.5067   \\
 \end{tabular}
 \end{center}
 

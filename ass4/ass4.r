@@ -67,8 +67,8 @@ beta.hat.ivls[i] <- ivls$coeff
 
 # IVLS plugin error estimator
 SS <- sum((Y - X*ivls$coeff)^2)
-#SS / (n - 2)
-sigma2.hat.ivls[i] <- SS / (n - 2)
+#SS / (n - 1)
+sigma2.hat.ivls[i] <- SS / (n - 1)
 
 # transformed error estimator
 tZ <- t(cbind(U,V))
