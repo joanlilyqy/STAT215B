@@ -9,8 +9,8 @@ n <- 10
 N <- 1000
 # true parameter value
 mu <- c(-.81, -.39, -.39, -.08, .69, .71, 1.28, 1.32, 1.89, 4.00)
-A.hat <- sum(mu^2) / (n-1)
-TSE <- (n*A.hat+2)/(A.hat+1)
+A.hat <- sum(mu^2) / (n-2)
+TSE <- (n*A.hat+2)/(A.hat+1) #8.05 vs. 8.13
 
 mu.hat.MLE <- matrix(0, nrow=n, ncol=N)
 mu.hat.JS <- matrix(0, nrow=n, ncol=N)
