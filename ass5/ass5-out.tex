@@ -1,4 +1,59 @@
-\documentclass{article}
+\documentclass{article}\usepackage{graphicx, color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\definecolor{fgcolor}{rgb}{0.2, 0.2, 0.2}
+\newcommand{\hlnumber}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlfunctioncall}[1]{\textcolor[rgb]{0.501960784313725,0,0.329411764705882}{\textbf{#1}}}%
+\newcommand{\hlstring}[1]{\textcolor[rgb]{0.6,0.6,1}{#1}}%
+\newcommand{\hlkeyword}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlargument}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlcomment}[1]{\textcolor[rgb]{0.180392156862745,0.6,0.341176470588235}{#1}}%
+\newcommand{\hlroxygencomment}[1]{\textcolor[rgb]{0.43921568627451,0.47843137254902,0.701960784313725}{#1}}%
+\newcommand{\hlformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hleqformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlassignement}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlpackage}[1]{\textcolor[rgb]{0.588235294117647,0.709803921568627,0.145098039215686}{#1}}%
+\newcommand{\hlslot}[1]{\textit{#1}}%
+\newcommand{\hlsymbol}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlprompt}[1]{\textcolor[rgb]{0.2,0.2,0.2}{#1}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 
 \usepackage{color}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -24,9 +79,8 @@
 
 %% for inline R code: if the inline code is not correctly parsed, you will see a message
 \newcommand{\rinline}[1]{SOMETHING WORNG WITH knitr}
-%% begin.rcode setup, include=FALSE
-% opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-')
-%% end.rcode
+
+
 
 
 \begin{document}
@@ -167,13 +221,8 @@ R^{(JS)} & = E_{\bm{\mu}} \{ R^{(JS)} (\bm{\mu}) \} \\
 \end{displaymath}
 
 
-%%  begin.rcode ass5-1-15,cache=TRUE,results="markup",message=FALSE,echo=FALSE
-%%rm(list=ls())
-%%n <- 10
-%%mu <- c(-.81, -.39, -.39, -.08, .69, .71, 1.28, 1.32, 1.89, 4.00)
-%%A.hat <- sum(mu^2) / (n-2)
-%%TSE <- (n*A.hat+2)/(A.hat+1)
-%%  end.rcode
+
+
 \subsubsection*{1.5}
 If we assume in Table 1.2, for $i = 1, ..., n$,
 $\mu_i \sim \mathcal{N}(0, A)$, and we also have
@@ -189,7 +238,7 @@ Here, we can estimate
 \begin{displaymath}
 \hat{A} = \frac{1}{n-2} \sum_{i=1}^{n=10} \mu_i^2
 \end{displaymath}
-So, we get $\hat{A}=$ \rinline{A.hat} and $TSE=$ \rinline{TSE}, which is
+So, we get $\hat{A}=$ 3.1125 and $TSE=$ 8.0547, which is
 close to the $8.13$ value in the table.
 
 
@@ -230,38 +279,24 @@ TSE^{(JS)} &= \sum_{i=1}^n MSE_i^{(JS)}\\
 \end{split}
 \end{displaymath}
 
-%%  begin.rcode ass5-2,cache=TRUE,results="markup",message=FALSE,echo=FALSE
-%%n <- 10
-%%N <- 1000
-%%mu.hat.MLE <- matrix(0, nrow=n, ncol=N)
-%%mu.hat.JS <- matrix(0, nrow=n, ncol=N)
-%%for (i in 1:N){
-%%set.seed(i*10)
-%%z <- rnorm(n, mu, 1)
-%%mu.hat.MLE[ ,i] <- z
-%%z.bar <- mean(z)
-%%S <- sum((z - z.bar)^2)
-%%mu.hat.JS[ ,i] <- z.bar + (1 - (n-3)*1/S)*(z - z.bar)
-%%}
-%%MSE.MLE <- rowMeans((mu.hat.MLE - mu)^2)
-%%MSE.JS <- rowMeans((mu.hat.JS - mu)^2)
-%%  end.rcode
+
+
 
 So, Efron's Table 1.2 is reproduced as below.
 \begin{center}
 \begin{tabular}{lrrr} \hline
   & $\mu_i$ & $MSE_i^{(MLE)}$ & $MSE_i^{(JS)}$  \\ \hline
-1 & \rinline{sprintf("%.2f",mu[1])} & \rinline{sprintf("%.2f",MSE.MLE[1])} & \rinline{sprintf("%.2f",MSE.JS[1])} \\
-2 & \rinline{sprintf("%.2f",mu[2])} & \rinline{sprintf("%.2f",MSE.MLE[2])} & \rinline{sprintf("%.2f",MSE.JS[2])} \\
-3 & \rinline{sprintf("%.2f",mu[3])} & \rinline{sprintf("%.2f",MSE.MLE[3])} & \rinline{sprintf("%.2f",MSE.JS[3])} \\
-4 & \rinline{sprintf("%.2f",mu[4])} & \rinline{sprintf("%.2f",MSE.MLE[4])} & \rinline{sprintf("%.2f",MSE.JS[4])} \\
-5 & \rinline{sprintf("%.2f",mu[5])} & \rinline{sprintf("%.2f",MSE.MLE[5])} & \rinline{sprintf("%.2f",MSE.JS[5])} \\
-6 & \rinline{sprintf("%.2f",mu[6])} & \rinline{sprintf("%.2f",MSE.MLE[6])} & \rinline{sprintf("%.2f",MSE.JS[6])} \\
-7 & \rinline{sprintf("%.2f",mu[7])} & \rinline{sprintf("%.2f",MSE.MLE[7])} & \rinline{sprintf("%.2f",MSE.JS[7])} \\
-8 & \rinline{sprintf("%.2f",mu[8])} & \rinline{sprintf("%.2f",MSE.MLE[8])} & \rinline{sprintf("%.2f",MSE.JS[8])} \\
-9 & \rinline{sprintf("%.2f",mu[9])} & \rinline{sprintf("%.2f",MSE.MLE[9])} & \rinline{sprintf("%.2f",MSE.JS[9])} \\
-10 & \rinline{sprintf("%.2f",mu[10])} & \rinline{sprintf("%.2f",MSE.MLE[10])} & \rinline{sprintf("%.2f",MSE.JS[10])} \\ \hline
-TSE &  & \rinline{sprintf("%.2f",sum(MSE.MLE))} & \rinline{sprintf("%.2f",sum(MSE.JS))}
+1 & -0.81 & 1.01 & 0.91 \\
+2 & -0.39 & 1.00 & 0.75 \\
+3 & -0.39 & 0.95 & 0.73 \\
+4 & -0.08 & 1.02 & 0.69 \\
+5 & 0.69 & 0.95 & 0.57 \\
+6 & 0.71 & 0.99 & 0.59 \\
+7 & 1.28 & 0.98 & 0.59 \\
+8 & 1.32 & 0.97 & 0.59 \\
+9 & 1.89 & 1.04 & 0.75 \\
+10 & 4.00 & 1.02 & 1.76 \\ \hline
+TSE &  & 9.92 & 7.95
 \end{tabular}
 \end{center}
 For $MSE$'s, we expect to see one decimal place of agreement 
@@ -284,36 +319,8 @@ The dataset is then further splited into two sets:
 a training set with 5 randomly chosen observations from
 each county, and a test set with the other observations.
 
-%%  begin.rcode ass5-3-0,cache=TRUE,results="markup",message=FALSE,echo=FALSE
-%%rm(list=ls())
-%%srrs <- read.table("srrs2.dat", sep=",", header=T)
-%%base <- srrs[srrs$floor == 0, ]
-%%mn <- base[base$state == 'MN', ]
-%%obs.ct <- table(mn$county)
-%%maj.ct <- obs.ct[obs.ct >= 10]
-%%N <- length(maj.ct)
-%%radon <- mn[mn$county %in% names(maj.ct), ]
 
-%%n <- 5
-%%train <- c()
-%%for (i in 1:N)
-%%{
-%%tmp <- radon[radon$county == names(maj.ct)[i], ]
-%%set.seed(i*10)
-%%ids <- sample(1:nrow(tmp), n)
-%%train <- rbind(train, tmp[ids, ])
-%%}
-%%test <- radon[!(radon$idnum %in% train$idnum), ]
 
-%%mu <- rep(0, N)
-%%names(mu) <- names(maj.ct)
-%%for (i in 1:N)
-%%{
-%%tmp <- test[test$county == names(maj.ct)[i], ]
-%%if ( nrow(tmp) == maj.ct[i] - n )
-%%  mu[i] <- mean(tmp$activity)
-%%}
-%%  end.rcode
 
 
 The "true" vector of mean radon levels by county, $\bm{\mu}$, are calculated
@@ -322,36 +329,8 @@ population-level parameter $\bm{\mu}$.
 We adopt the standard independent-normals assumption here, with a slightly
 different notation due to the multiple observations for each county.
 
-%%  begin.rcode ass5-3-est,cache=TRUE,results="markup",message=FALSE,echo=FALSE
-%%mu.MLE <- rep(0, N)
-%%wc.se <- rep(0, N) # within-county sum of squared residuals
-%%names(mu.MLE) <- names(maj.ct)
-%%for (i in 1:N)
-%%{
-%%tmp <- train[train$county == names(maj.ct)[i], ]
-%%if ( nrow(tmp) == n ){
-%%  mu.MLE[i] <- mean(tmp$activity)
-%%  wc.se[i] <- sum((tmp$activity - mu.MLE[i])^2)
-%%}
-%%}
-%%TSE.MLE <- sum((mu.MLE - mu)^2)
 
-%%mu.bar <- mean(mu.MLE)
-%%tau2 <- sum(wc.se) / (N*(n-1))
-%%SE <- tau2 / n #note
-%%S <- sum((mu.MLE - mu.bar)^2)
-%%shr <- 1 - (N - 3)*SE/S
-%%mu.JS <- rep(0, N)
-%%names(mu.JS) <- names(maj.ct)
-%%for (i in 1:N)
-%%{
-%%tmp <- train[train$county == names(maj.ct)[i], ]
-%%if ( nrow(tmp) == n ){
-%%  mu.JS[i] = mu.bar + shr*(mu.MLE[i] - mu.bar)
-%%}
-%%}
-%%TSE.JS <- sum((mu.JS - mu)^2)
-%%  end.rcode
+
 
 
 For county $i$, ($i=1,\dots,N, N=17$), observation $j$, ($j=1,\dots,n, n=5$),
@@ -385,27 +364,27 @@ So, the estimates we get are shown in the table below.
 \begin{center}
 \begin{tabular}{lr|rr} \hline
 County & $\mu_i$ & $\hat{\mu}_i^{(MLE)}$ & $\hat{\mu}_i^{(JS)}$ \\ \hline
-\rinline{names(maj.ct)[1]} & \rinline{sprintf("%.2f",mu[1])} & \rinline{sprintf("%.2f",mu.MLE[1])} & \rinline{sprintf("%.2f",mu.JS[1])}\\
-\rinline{names(maj.ct)[2]} & \rinline{sprintf("%.2f",mu[2])} & \rinline{sprintf("%.2f",mu.MLE[2])} & \rinline{sprintf("%.2f",mu.JS[2])}\\
-\rinline{names(maj.ct)[3]} & \rinline{sprintf("%.2f",mu[3])} & \rinline{sprintf("%.2f",mu.MLE[3])} & \rinline{sprintf("%.2f",mu.JS[3])}\\
-\rinline{names(maj.ct)[4]} & \rinline{sprintf("%.2f",mu[4])} & \rinline{sprintf("%.2f",mu.MLE[4])} & \rinline{sprintf("%.2f",mu.JS[4])}\\
-\rinline{names(maj.ct)[5]} & \rinline{sprintf("%.2f",mu[5])} & \rinline{sprintf("%.2f",mu.MLE[5])} & \rinline{sprintf("%.2f",mu.JS[5])}\\
-\rinline{names(maj.ct)[6]} & \rinline{sprintf("%.2f",mu[6])} & \rinline{sprintf("%.2f",mu.MLE[6])} & \rinline{sprintf("%.2f",mu.JS[6])}\\
-\rinline{names(maj.ct)[7]} & \rinline{sprintf("%.2f",mu[7])} & \rinline{sprintf("%.2f",mu.MLE[7])} & \rinline{sprintf("%.2f",mu.JS[7])}\\
-\rinline{names(maj.ct)[8]} & \rinline{sprintf("%.2f",mu[8])} & \rinline{sprintf("%.2f",mu.MLE[8])} & \rinline{sprintf("%.2f",mu.JS[8])}\\
-\rinline{names(maj.ct)[9]} & \rinline{sprintf("%.2f",mu[9])} & \rinline{sprintf("%.2f",mu.MLE[9])} & \rinline{sprintf("%.2f",mu.JS[9])}\\
-\rinline{names(maj.ct)[10]} & \rinline{sprintf("%.2f",mu[10])} & \rinline{sprintf("%.2f",mu.MLE[10])} & \rinline{sprintf("%.2f",mu.JS[10])}\\
-\rinline{names(maj.ct)[11]} & \rinline{sprintf("%.2f",mu[11])} & \rinline{sprintf("%.2f",mu.MLE[11])} & \rinline{sprintf("%.2f",mu.JS[11])}\\
-\rinline{names(maj.ct)[12]} & \rinline{sprintf("%.2f",mu[12])} & \rinline{sprintf("%.2f",mu.MLE[12])} & \rinline{sprintf("%.2f",mu.JS[12])}\\
-\rinline{names(maj.ct)[13]} & \rinline{sprintf("%.2f",mu[13])} & \rinline{sprintf("%.2f",mu.MLE[13])} & \rinline{sprintf("%.2f",mu.JS[13])}\\
-\rinline{names(maj.ct)[14]} & \rinline{sprintf("%.2f",mu[14])} & \rinline{sprintf("%.2f",mu.MLE[14])} & \rinline{sprintf("%.2f",mu.JS[14])}\\
-\rinline{names(maj.ct)[15]} & \rinline{sprintf("%.2f",mu[15])} & \rinline{sprintf("%.2f",mu.MLE[15])} & \rinline{sprintf("%.2f",mu.JS[15])}\\
-\rinline{names(maj.ct)[16]} & \rinline{sprintf("%.2f",mu[16])} & \rinline{sprintf("%.2f",mu.MLE[16])} & \rinline{sprintf("%.2f",mu.JS[16])}\\
-\rinline{names(maj.ct)[17]} & \rinline{sprintf("%.2f",mu[17])} & \rinline{sprintf("%.2f",mu.MLE[17])} & \rinline{sprintf("%.2f",mu.JS[17])}\\ \hline
-TSE &  & \rinline{sprintf("%.2f",TSE.MLE)} & \rinline{sprintf("%.2f",TSE.JS)} 
+ANOKA                & 2.85 & 5.08 & 5.31\\
+BLUE EARTH           & 8.10 & 6.06 & 5.87\\
+CLAY                 & 9.30 & 12.82 & 9.72\\
+DAKOTA               & 4.86 & 5.56 & 5.59\\
+GOODHUE              & 12.19 & 4.10 & 4.75\\
+HENNEPIN             & 4.89 & 3.94 & 4.66\\
+ITASCA               & 2.60 & 3.52 & 4.42\\
+MOWER                & 9.00 & 7.16 & 6.50\\
+OLMSTED              & 5.12 & 3.86 & 4.62\\
+RAMSEY               & 3.48 & 3.66 & 4.50\\
+RICE                 & 6.54 & 8.24 & 7.11\\
+ST LOUIS             & 3.35 & 1.78 & 3.43\\
+STEARNS              & 5.89 & 4.32 & 4.88\\
+STEELE               & 4.68 & 6.54 & 6.14\\
+WASHINGTON           & 5.17 & 4.88 & 5.20\\
+WINONA               & 8.92 & 6.40 & 6.06\\
+WRIGHT               & 5.01 & 7.60 & 6.75\\ \hline
+TSE &  & 118.56 & 92.57 
 \end{tabular}
 \end{center}
-So, the ratio of the total square error is $TSE^{(MLE)} / TSE^{(JS)} =$ \rinline{sprintf("%.2f",TSE.MLE/TSE.JS)}.
+So, the ratio of the total square error is $TSE^{(MLE)} / TSE^{(JS)} =$ 1.28.
 And we can conclude that the Stein shrinkage in this application help moderately
 reduce the total square error.
 

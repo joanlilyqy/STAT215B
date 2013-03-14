@@ -1,0 +1,191 @@
+> source("ass5.r",echo=T)
+
+> #### Ying Qiao
+> #### SID: 21412301
+> #### STAT 215B, Assignment 5, 3/15/2013
+> 
+> rm(list=ls())
+
+> #### Simulation
+> #### Efron (2010) Table 1.2
+> n <- 10
+
+> N <- 1000
+
+> # true parameter value
+> mu <- c(-.81, -.39, -.39, -.08, .69, .71, 1.28, 1.32, 1.89, 4.00)
+
+> A.hat <- sum(mu^2) / (n-2)
+
+> TSE <- (n*A.hat+2)/(A.hat+1) #8.05 vs. 8.13
+
+> mu.hat.MLE <- matrix(0, nrow=n, ncol=N)
+
+> mu.hat.JS <- matrix(0, nrow=n, ncol=N)
+
+> for (i in 1:N){
++ # random sample
++ set.seed(i*10)
++ z <- rnorm(n, mu, 1)
++ # MLE
++ mu.hat.MLE[ ,i] <- z
++ # JS
++ z.bar <- mean(z)
++ S <- sum((z - z .... [TRUNCATED] 
+
+> MSE.MLE <- rowMeans((mu.hat.MLE - mu)^2)
+
+> MSE.MLE
+ [1] 1.0098104 0.9955314 0.9472470 1.0190448 0.9507061 0.9867582 0.9824405
+ [8] 0.9730312 1.0375070 1.0168668
+
+> sum(MSE.MLE)
+[1] 9.918943
+
+> MSE.JS <- rowMeans((mu.hat.JS - mu)^2)
+
+> MSE.JS
+ [1] 0.9119047 0.7513729 0.7305403 0.6947353 0.5650683 0.5945821 0.5929126
+ [8] 0.5897660 0.7509859 1.7636664
+
+> sum(MSE.JS)
+[1] 7.945534
+
+> #####################################################################
+> rm(list=ls())
+
+> #### Shrinking radon
+> ## load data
+> srrs <- read.table("srrs2.dat", sep=",", header=T)
+
+> #head(srrs)
+> 
+> ## cleaning
+> base <- srrs[srrs$floor == 0, ]
+
+> mn <- base[base$state == 'MN', ]
+
+> obs.ct <- table(mn$county)
+
+> maj.ct <- obs.ct[obs.ct >= 10]
+
+> N <- length(maj.ct)
+
+> radon <- mn[mn$county %in% names(maj.ct), ]
+
+> dim(radon)
+[1] 511  25
+
+> #head(radon)
+> 
+> ## split set
+> n <- 5
+
+> train <- c()
+
+> for (i in 1:N)
++ {
++ tmp <- radon[radon$county == names(maj.ct)[i], ]
++ set.seed(i*10)
++ ids <- sample(1:nrow(tmp), n)
++ train <- rbind(train, tmp[i .... [TRUNCATED] 
+
+> dim(train)
+[1] 85 25
+
+> test <- radon[!(radon$idnum %in% train$idnum), ]
+
+> dim(test)
+[1] 426  25
+
+> ## "true" parameter value
+> mu <- rep(0, N)
+
+> names(mu) <- names(maj.ct)
+
+> for (i in 1:N)
++ {
++ tmp <- test[test$county == names(maj.ct)[i], ]
++ if ( nrow(tmp) == maj.ct[i] - n )
++   mu[i] <- mean(tmp$activity)
++ }
+
+> ## MLE estimator
+> mu.MLE <- rep(0, N)
+
+> wc.se <- rep(0, N) # within-county sum of squared residuals
+
+> names(mu.MLE) <- names(maj.ct)
+
+> for (i in 1:N)
++ {
++ tmp <- train[train$county == names(maj.ct)[i], ]
++ if ( nrow(tmp) == n ){
++   mu.MLE[i] <- mean(tmp$activity)
++   wc.se[i] <- s .... [TRUNCATED] 
+
+> mu.MLE
+ANOKA                BLUE EARTH           CLAY                 
+                5.08                 6.06                12.82 
+DAKOTA               GOODHUE              HENNEPIN             
+                5.56                 4.10                 3.94 
+ITASCA               MOWER                OLMSTED              
+                3.52                 7.16                 3.86 
+RAMSEY               RICE                 ST LOUIS             
+                3.66                 8.24                 1.78 
+STEARNS              STEELE               WASHINGTON           
+                4.32                 6.54                 4.88 
+WINONA               WRIGHT               
+                6.40                 7.60 
+
+> TSE.MLE <- sum((mu.MLE - mu)^2)
+
+> TSE.MLE
+[1] 118.5625
+
+> ## brief note
+> # z_{i,j} ~ N(u_i, t^2) i=1...17, j=1...5 all independent
+> # uMLE = z_{i,.}=avg_j{z_{i,j}}
+> # z_{i,.} ~ N(u_i, t^2/n_j)
+> 
+> ## JS .... [TRUNCATED] 
+
+> tau2 <- sum(wc.se) / (N*(n-1))
+
+> SE <- tau2 / n #note
+
+> S <- sum((mu.MLE - mu.bar)^2)
+
+> shr <- 1 - (N - 3)*SE/S
+
+> mu.JS <- rep(0, N)
+
+> names(mu.JS) <- names(maj.ct)
+
+> for (i in 1:N)
++ {
++ tmp <- train[train$county == names(maj.ct)[i], ]
++ if ( nrow(tmp) == n ){
++   mu.JS[i] = mu.bar + shr*(mu.MLE[i] - mu.bar)
++ }
+ .... [TRUNCATED] 
+
+> mu.JS
+ANOKA                BLUE EARTH           CLAY                 
+            5.311996             5.870047             9.719457 
+DAKOTA               GOODHUE              HENNEPIN             
+            5.585327             4.753946             4.662835 
+ITASCA               MOWER                OLMSTED              
+            4.423671             6.496430             4.617280 
+RAMSEY               RICE                 ST LOUIS             
+            4.503392             7.111425             3.432846 
+STEARNS              STEELE               WASHINGTON           
+            4.879222             6.143378             5.198108 
+WINONA               WRIGHT               
+            6.063656             6.746983 
+
+> TSE.JS <- sum((mu.JS - mu)^2)
+
+> TSE.JS
+[1] 92.56502
+> 

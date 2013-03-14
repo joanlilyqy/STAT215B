@@ -92,6 +92,7 @@ if ( nrow(tmp) == n ){
   wc.se[i] <- sum((tmp$activity - mu.MLE[i])^2)
 }
 }
+mu.MLE
 TSE.MLE <- sum((mu.MLE - mu)^2)
 TSE.MLE
 
@@ -117,6 +118,7 @@ if ( nrow(tmp) == n ){
   mu.JS[i] = mu.bar + shr*(mu.MLE[i] - mu.bar)
 }
 }
+mu.JS
 TSE.JS <- sum((mu.JS - mu)^2)
 TSE.JS
 
