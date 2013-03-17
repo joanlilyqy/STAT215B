@@ -1,4 +1,59 @@
-\documentclass{article}
+\documentclass{article}\usepackage{graphicx, color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\definecolor{fgcolor}{rgb}{0.2, 0.2, 0.2}
+\newcommand{\hlnumber}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlfunctioncall}[1]{\textcolor[rgb]{0.501960784313725,0,0.329411764705882}{\textbf{#1}}}%
+\newcommand{\hlstring}[1]{\textcolor[rgb]{0.6,0.6,1}{#1}}%
+\newcommand{\hlkeyword}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlargument}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlcomment}[1]{\textcolor[rgb]{0.180392156862745,0.6,0.341176470588235}{#1}}%
+\newcommand{\hlroxygencomment}[1]{\textcolor[rgb]{0.43921568627451,0.47843137254902,0.701960784313725}{#1}}%
+\newcommand{\hlformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hleqformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlassignement}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlpackage}[1]{\textcolor[rgb]{0.588235294117647,0.709803921568627,0.145098039215686}{#1}}%
+\newcommand{\hlslot}[1]{\textit{#1}}%
+\newcommand{\hlsymbol}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlprompt}[1]{\textcolor[rgb]{0.2,0.2,0.2}{#1}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 
 \usepackage{color}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -24,9 +79,8 @@
 
 %% for inline R code: if the inline code is not correctly parsed, you will see a message
 \newcommand{\rinline}[1]{SOMETHING WORNG WITH knitr}
-%% begin.rcode setup, include=FALSE
-% opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-')
-%% end.rcode
+
+
 
 
 \begin{document}
@@ -279,11 +333,8 @@ $x_{ij}$ = expression of gene $i$ on patient $j$,
 \end{center}
 where $i=1,..,N$, $N=6033$; normal patients $j=1,...,50$ vs. cancer
 patients $j=51,...,102$.
-%%  begin.rcode ass6-00,cache=TRUE,results="markup",message=FALSE,echo=FALSE
-%%rm(list=ls())
-%%load("prostatedata.Rda")
-%%N <- dim(prostatedata)[1]
-%%  end.rcode
+
+
 
 
 \subsubsection*{Efron Figure 2.1}
@@ -311,14 +362,20 @@ Finally, we reproduce Efron
 Figure 2.1, histogram of $z$-values testing $N=6033$ genes
 for possible involvement with prostate cancer.
 
-%%  begin.rcode ass6-21,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="Reproduced Efron Figure 2.1"
-%%x1 <- rowMeans(prostatedata[ ,1:50])
-%%x2 <- rowMeans(prostatedata[ ,51:102])
-%%s2 <- (1/50 + 1/52)/100 * (rowSums((prostatedata[ ,1:50] - x1)^2) + rowSums((prostatedata[ ,51:102] - x2)^2))
-%%t <- (x2 - x1) / sqrt(s2)
-%%z <- qnorm(pt(t, 100)) #greater
-%%hist(z, breaks=100, xlim=c(-5,5), xlab="z values->", ylab="Frequency", main="", col="grey")
-%%  end.rcode
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass6-21} 
+
+}
+
+\caption[Reproduced Efron Figure 2]{Reproduced Efron Figure 2.1\label{fig:ass6-21}}
+\end{figure}
+
+
+\end{knitrout}
+
 
 
 \subsubsection*{Efron Figure 4.2}
@@ -330,19 +387,25 @@ p_i = F_{100}(-t_i)
 \end{displaymath}
 After ordering and choosing $q=0.1$, we reproduce Efron Figure 4.2. 
 
-%%  begin.rcode ass6-42,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="Reproduced Efron Figure 4.2"
-%%q <- 0.1
-%%p <- pt(-t, 100)
-%%p.sort <- sort(p)
-%%R <- length(p.sort[p.sort <= q/N*(1:N)])
-%%plot(1:50, p.sort[1:50], typ="p", pch="*", col="black", xlab="index i", ylab="ordered p-values")
-%%lines(x=1:50, y=q/N*(1:50), lwd=2)
-%%  end.rcode
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass6-42} 
+
+}
+
+\caption[Reproduced Efron Figure 4]{Reproduced Efron Figure 4.2\label{fig:ass6-42}}
+\end{figure}
+
+
+\end{knitrout}
+
 
 Here, stars indicate $p$-values for the 50 largest $z_i$, and the
-solid line (slope=$q/N$) intersection gives us the \rinline{R}
+solid line (slope=$q/N$) intersection gives us the 27
 rejections of the null cases under BH($q$) control. So among the
-\rinline{R} non-null genes, the expected number of 
-false discoveries should be \rinline{q*R}, which is quite good.
+27 non-null genes, the expected number of 
+false discoveries should be 2.7, which is quite good.
 
 \end{document}

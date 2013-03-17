@@ -24,7 +24,7 @@ hist(z, breaks=100, xlim=c(-5,5), xlab="z values->", ylab="Frequency", main="", 
 
 ## Figure 4.2
 q <- 0.1
-p <- 1 - pt(t, 100)
+p <- pt(-t, 100)
 p.sort <- sort(p)
 R <- length(p.sort[p.sort <= q/N*(1:N)])
 q*R # false discovery?
