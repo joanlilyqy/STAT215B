@@ -283,14 +283,14 @@ Here, for left-sided tests, when $z$ is positively large ($z>3$),
 \end{displaymath}
 Similarly, for right-sided tests, when $z$ is negatively large ($z<-3$),
 \begin{displaymath}
-\bar{F}^{(c)}(z) \rightarrow F_0^{(c)}(z)
+\bar{F}^{(c)}(z) \rightarrow F_0^{(c)}(z);
 \overline{Fdr}^{(c)}(z) \rightarrow \pi_0
 \end{displaymath}
 When setting $\pi_0 = 1$, we should see that
 \begin{displaymath}
 \begin{split}
-\overline{Fdr}(z) = 1, &\hspace{4 pt} z>3 \\
-\overline{Fdc}^{(c)}(z) = 1, &\hspace{4 pt} z<-3 
+\overline{Fdr}(z) \simeq 1, &\hspace{4 pt} z>3 \\
+\overline{Fdc}^{(c)}(z) \simeq 1, &\hspace{4 pt} z<-3 
 \end{split}
 \end{displaymath}
 as shown up in Figure 4.3.
@@ -342,15 +342,15 @@ patients $j=51,...,102$.
 this dataset use the two-sample $t$-statistic. \newline
 For testing gene $i$,
 \begin{displaymath}
-t_i = \frac{\bar{x_i}(2) - \bar{x_i}(1)}{s_i}
+t_i = \frac{\bar{x}_i(2) - \bar{x}_i(1)}{s_i}
 \end{displaymath}
 \begin{displaymath}
-\bar{x_i}(1) = \frac{1}{50} \sum_{j=1}^{50} x_{ij} ; \hspace{8 pt}
-\bar{x_i}(2) = \frac{1}{52} \sum_{j=51}^{102} x_{ij}
+\bar{x}_i(1) = \frac{1}{50} \sum_{j=1}^{50} x_{ij} ; \hspace{8 pt}
+\bar{x}_i(2) = \frac{1}{52} \sum_{j=51}^{102} x_{ij}
 \end{displaymath}
 \begin{displaymath}
-s_i^2 = \frac{\sum_{j=1}^{50} (x_{ij} - \bar{x_i}(1))^2 +
-  \sum_{j=51}^{102} (x_{ij} - \bar{x_i}(1))^2 }{100} \cdot (\frac{1}{50} + \frac{1}{52}) 
+s_i^2 = \frac{\sum_{j=1}^{50} (x_{ij} - \bar{x}_i(1))^2 +
+  \sum_{j=51}^{102} (x_{ij} - \bar{x}_i(2))^2 }{100} \cdot (\frac{1}{50} + \frac{1}{52}) 
 \end{displaymath}
 Then, we transform to the $z$-values, 
 where $\Phi$ is the standard normal CDF and $F_{100}$ is the Student-$t$ CDF
