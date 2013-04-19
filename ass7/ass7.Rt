@@ -1,0 +1,195 @@
+> #### Ying Qiao
+> #### SID: 21412301
+> #### STAT 215B, Assignment 7, 4/19/2013
+> 
+> rm(list=ls())
+> require(MASS)
+> 
+> #### Test setup
+> # sizes
+> p <- 50
+> n <- 100
+> n.cs <- n * 0.8
+> n.vs <- n - n.cs
+> # parameters
+> alpha <- 0.1
+> beta <- sample(1:p,p) / 10
+> del2 <- 0.01^2 #NSR ols 0.1/copas 0.01/non-copas 0.2
+> sig2 <- del2 * sum(beta^2) * n.cs
+> # model
+> my.model <- function(x, a,b,K) a+K*crossprod(b,x)
+>   
+> ## simulations
+> N.rep <- 10 #100 for test
+> PMSE<-list()
+> PMSE$ols <- rep(0, N.rep)
+> PMSE$copas <- rep(0, N.rep)
+> PMSE$crosval <- rep(0, N.rep)
+> K<-list()
+> K$copas <- rep(0, N.rep)
+> K$crosval <- rep(0, N.rep)
+> 
+> sig2hat <- rep(0, N.rep)
+> Vnorm <- rep(0, N.rep)
+> covXnorm <- rep(0, N.rep)
+> 
+> 
+> for (i in 1:N.rep){
++ #### Sample
++ # cov of X
++ r <- runif(1)
++ vi <- rep(1:p, each=p)
++ vj <- rep(1:p, p)
++ cov <- matrix(sapply(1:(p*p), function(i){r^(abs(vi[i]-vj[i]))}), nrow=p)
++ # CS
++ X.cs <- mvrnorm(n.cs, rep(0,p), cov)
++ X.cs <- t(t(X.cs)-colMeans(X.cs))
++ V <- 1/n.cs * crossprod(X.cs)
++ Vnorm[i] <- norm(V, 'F')
++ covXnorm[i] <- norm(cov(X.cs), 'F')
++ 
++ eps <- rnorm(n, mean=0, sd=sqrt(sig2)) #copas
++ # non-copas
++ #sd <- sqrt(sig2/30)
++ #eps <- rnorm(n/2, mean=-6*sd, sd=sd)
++ #eps <- c(eps, rnorm(n/2, mean=6*sd, sd=sd))
++ 
++ ii.cs <- sample(1:n, n.cs)
++ y.cs <- apply(X.cs, 1, my.model, a=alpha,b=beta,K=1) + eps[ii.cs]
++ # VS
++ X.vs <- mvrnorm(n.vs, rep(0,p), cov) # non-copas cov+diag(n.vs, r)
++ X.vs <- t(t(X.vs)-colMeans(X.vs))
++ y.vs <- apply(X.vs, 1, my.model, a=alpha,b=beta,K=1) + eps[-ii.cs]
++ 
++ 
++ #### Multiple linear regression on CS
++ # OLS
++ ols <- lm(y.cs ~ X.cs)
++ alpha.ols <- ols$coeff[1]
++ beta.ols <- ols$coeff[-1]
++ 
++ # K.hat (Copas 1983)
++ nu <- n.cs - (p+1)
++ sig2hat[i] <- sum((ols$res)^2)/nu
++ bVb <- t(beta.ols) %*% V %*% beta.ols
++ K$copas[i] <- 1 - (p-2)*sig2hat[i]*nu/(n.cs*(nu+2)*bVb)
++ 
++ # K.tide (cross validation)
++ k=n.cs
++ K.cv <- rep(0, k)
++ ids <- 1:n.cs
++ for (j in 1:k){
++   # k-fold
++   tt <- sample(ids, n.cs/k)
++   Xcv <- X.cs[-tt, ]
++   ycv <- y.cs[-tt]
++   Xtt <- X.cs[tt, ]
++   ytt <- y.cs[tt]
++   ids <- ids[-tt]
++ 
++   # fit
++   mm <- lm(ycv ~ Xcv)
++   a <- mm$coeff[1]
++   b <- mm$coeff[-1]
++ 
++   ytt.ols <- a + crossprod(b, Xtt)
++   K.cv[j] <- abs(ytt/(ytt.ols - a))
++   if (K.cv[j] > 1) K.cv[j] = 1
++   ytt.cv <- a + K.cv[j]*crossprod(b, Xtt)
++ }
++ K$crosval[i] <- mean(K.cv)
++ 
++ 
++ # PMSE (VS)
++ y.ols <- apply(X.vs, 1, my.model, a=alpha.ols,b=beta.ols,K=1)
++ y.copas <- apply(X.vs, 1, my.model, a=alpha.ols,b=beta.ols,K=K$copas[i])
++ y.crosval <- apply(X.vs, 1, my.model, a=alpha.ols,b=beta.ols,K=K$crosval[i])
++ PMSE$ols[i] <- mean((y.vs - y.ols)^2)
++ PMSE$copas[i] <- mean((y.vs - y.copas)^2)
++ PMSE$crosval[i] <- mean((y.vs - y.crosval)^2)
++ }
+
+#save(list=ls(), file='ols.Rdata')
+#save(list=ls(), file='copas.Rdata')
+#save(list=ls(), file='non-copas.Rdata')
+#load('copas.Rdata')
+#load('non-copas.Rdata')
+
+PMSE <- data.frame(PMSE)
+boxplot(PMSE$copas, PMSE$ols, names=names(PMSE)[c(2,1)])
+t.test(PMSE$copas, PMSE$ols, alter = 'less')
+boxplot(PMSE$copas, PMSE$crosval, names=names(PMSE)[c(2,3)])
+t.test(PMSE$copas, PMSE$crosval, alter = 'less')
+#t.test(PMSE$copas, PMSE$crosval, alter = 'greater') #non-copas
+
+K <- data.frame(K)
+colMeans(K)
+
+######################
+#check
+######################
+# randomness
+#hist(X.cs)
+#hist(eps, xlab='eps')
+
+# sig2
+#t.test(sig2hat, mu=sig2)
+
+# V vs. cov
+#t.test(Vnorm, covXnorm)
+> 
+> #save(list=ls(), file='ols.Rdata')
+> #save(list=ls(), file='copas.Rdata')
+> #save(list=ls(), file='non-copas.Rdata')
+> #load('copas.Rdata')
+> #load('non-copas.Rdata')
+> 
+> PMSE <- data.frame(PMSE)
+> boxplot(PMSE$copas, PMSE$ols, names=names(PMSE)[c(2,1)])
+> t.test(PMSE$copas, PMSE$ols, alter = 'less')
+
+	Welch Two Sample t-test
+
+data:  PMSE$copas and PMSE$ols 
+t = -0.0213, df = 18, p-value = 0.4916
+alternative hypothesis: true difference in means is less than 0 
+95 percent confidence interval:
+     -Inf 2.174567 
+sample estimates:
+mean of x mean of y 
+ 7.158241  7.185247 
+
+> boxplot(PMSE$copas, PMSE$crosval, names=names(PMSE)[c(2,3)])
+> t.test(PMSE$copas, PMSE$crosval, alter = 'less')
+
+	Welch Two Sample t-test
+
+data:  PMSE$copas and PMSE$crosval 
+t = -2.4496, df = 9.915, p-value = 0.01723
+alternative hypothesis: true difference in means is less than 0 
+95 percent confidence interval:
+      -Inf -2.596744 
+sample estimates:
+mean of x mean of y 
+ 7.158241 17.166184 
+
+> #t.test(PMSE$copas, PMSE$crosval, alter = 'greater') #non-copas
+> 
+> K <- data.frame(K)
+> colMeans(K)
+    copas   crosval 
+0.9985418 0.9276073 
+> 
+> ######################
+> #check
+> ######################
+> # randomness
+> #hist(X.cs)
+> #hist(eps, xlab='eps')
+> 
+> # sig2
+> #t.test(sig2hat, mu=sig2)
+> 
+> # V vs. cov
+> #t.test(Vnorm, covXnorm)
+> 

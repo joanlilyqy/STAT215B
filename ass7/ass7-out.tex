@@ -1,4 +1,59 @@
-\documentclass{article}
+\documentclass{article}\usepackage{graphicx, color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\definecolor{fgcolor}{rgb}{0.2, 0.2, 0.2}
+\newcommand{\hlnumber}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlfunctioncall}[1]{\textcolor[rgb]{0.501960784313725,0,0.329411764705882}{\textbf{#1}}}%
+\newcommand{\hlstring}[1]{\textcolor[rgb]{0.6,0.6,1}{#1}}%
+\newcommand{\hlkeyword}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlargument}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlcomment}[1]{\textcolor[rgb]{0.180392156862745,0.6,0.341176470588235}{#1}}%
+\newcommand{\hlroxygencomment}[1]{\textcolor[rgb]{0.43921568627451,0.47843137254902,0.701960784313725}{#1}}%
+\newcommand{\hlformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hleqformalargs}[1]{\textcolor[rgb]{0.690196078431373,0.250980392156863,0.0196078431372549}{#1}}%
+\newcommand{\hlassignement}[1]{\textcolor[rgb]{0,0,0}{\textbf{#1}}}%
+\newcommand{\hlpackage}[1]{\textcolor[rgb]{0.588235294117647,0.709803921568627,0.145098039215686}{#1}}%
+\newcommand{\hlslot}[1]{\textit{#1}}%
+\newcommand{\hlsymbol}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlprompt}[1]{\textcolor[rgb]{0.2,0.2,0.2}{#1}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 
 \usepackage{color}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -24,9 +79,8 @@
 
 %% for inline R code: if the inline code is not correctly parsed, you will see a message
 \newcommand{\rinline}[1]{SOMETHING WORNG WITH knitr}
-%% begin.rcode setup, include=FALSE
-% opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-')
-%% end.rcode
+
+
 
 
 \begin{document}
@@ -42,25 +96,22 @@ To demonstrate the required statements about prediction mean square
 error (PMSE) of the three predictors. We choose the simulation
 parameters as shown in the table below.
 
-%%  begin.rcode ass7-00,cache=TRUE,results="hide",message=FALSE,echo=FALSE
-%%rm(list=ls())
-%%require(MASS)
-%%load('ols.Rdata')
-%%  end.rcode
+
+
 
 \begin{center}
 %%\caption{Table 1}
 \begin{tabular}{l|c|r} \hline
 \texttt{Simulation Parameter} & \texttt{Symbol} & \texttt{Value}  \\ \hline
-predictor dimension & $p$ & \rinline{p} \\ \hline
-number of overall samples & $n$ & \rinline{n} \\
-number of training samples & $n_{CS}$ & \rinline{n.cs} \\
-number of test samples & $n_{VS}$ & \rinline{n.vs} \\ \hline
-true intercept & $\alpha$ & \rinline{alpha} \\ 
-true coefficients & $\bm{\beta}$ &  $\in$[\rinline{min(beta)}, \rinline{max(beta)}]\\ \hline
-noise-signal-ratio & $\delta^2$ & \rinline{del2} \\
-noise variance & $\sigma^2$ & \rinline{sig2} \\ \hline
-simulation runs & $N$ & \rinline{N.rep} \\ \hline
+predictor dimension & $p$ & 50 \\ \hline
+number of overall samples & $n$ & 100 \\
+number of training samples & $n_{CS}$ & 80 \\
+number of test samples & $n_{VS}$ & 20 \\ \hline
+true intercept & $\alpha$ & 0.1 \\ 
+true coefficients & $\bm{\beta}$ &  $\in$[0.1, 5]\\ \hline
+noise-signal-ratio & $\delta^2$ & 0.01 \\
+noise variance & $\sigma^2$ & 343.4 \\ \hline
+simulation runs & $N$ & 100 \\ \hline
 \end{tabular}
 \end{center}
 
@@ -111,7 +162,7 @@ a one-sample $t$-test with target $\mu_0=\sigma^2$.
 \end{split}
 \end{displaymath}
 And the two-sided $t$-test results in a p-value of
-\rinline{t.test(sig2hat, mu=sig2)$p.value}, 
+0.4777, 
 which confirms that our estimates are unbiased.
 
 Moreover, we also want to check if the $\bm{V}$ (as defined in
@@ -125,7 +176,7 @@ terms of the Frobenius norm.
 \end{displaymath}
 We conduct a two-sample $t$-test on the $N$ samples of matrix norms
 and get the p-value of 
-\rinline{t.test(Vnorm, covXnorm)$p.value},
+0.8705,
 which confirms that we can trust the $\bm{V}$ approximation.
 
 
@@ -158,24 +209,43 @@ from $N$ runs on the VS samples,
 PMSE = \frac{1}{n_{VS}} \sum_{i=1}^{n_{VS}} (y_i - \hat{y}_i)^2
 \end{displaymath}
 the test gives a p-value of 
-\rinline{t.test(PMSE$copas, PMSE$ols, alter = 'less')$p.value}
+0.0043
 which rejects the null hypothesis and shows that PMSE of Copas
 pre-shrunk predictor is lower than that of OLS.
 
 
-%%  begin.rcode ass7-1,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="PMSE Copas vs. OLS"
-%%PMSE <- data.frame(PMSE)
-%%boxplot(PMSE$copas, PMSE$ols, names=names(PMSE)[c(2,1)])
-%%  end.rcode
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass7-1} 
+
+}
+
+\caption[PMSE Copas vs]{PMSE Copas vs. OLS\label{fig:ass7-1}}
+\end{figure}
+
+
+\end{knitrout}
+
 
 
 
 \subsubsection*{Statement 2: Copas vs. Cross-validation}
-%%  begin.rcode  ass7-2,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="PMSE Copas vs. Cross-validation"
-%%rm(list=ls())
-%%load('copas.Rdata')
-%%boxplot(PMSE$copas, PMSE$crosval, names=names(PMSE)[c(2,3)])
-%%  end.rcode
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass7-2} 
+
+}
+
+\caption[PMSE Copas vs]{PMSE Copas vs. Cross-validation\label{fig:ass7-2}}
+\end{figure}
+
+
+\end{knitrout}
+
 
 \hspace{12 pt}  We want to evaluate
 
@@ -201,27 +271,45 @@ We have the predictors with OLS parameter estimates, $\hat{\alpha},
 \end{displaymath}
 and then conduct a one-sided two-sample $t$-test on the PMSE values obtained
 from $N$ runs on the VS samples, the test gives a p-value of 
-\rinline{t.test(PMSE$copas, PMSE$crosval, alter = 'less')$p.value}
+\ensuremath{4.458\times 10^{-12}}
 which rejects the null hypothesis and shows that PMSE of Copas
 pre-shrunk predictor is lower than that of shrinkage estimated from cross-validation.
-(Here, we set the $\delta^2$=\rinline{del2} for the simulation setup.)
+(Here, we set the $\delta^2$=\ensuremath{10^{-4}} for the simulation setup.)
 
 
 
 
 \subsubsection*{Statement 3: Copas vs. Cross-validation | non-normal
   noise}
-%%  begin.rcode ass7-3,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="PMSE Copas vs. Cross-validation given non-normal noise"
-%%rm(list=ls())
-%%load('non-copas.Rdata')
-%%boxplot(PMSE$copas, PMSE$crosval, names=names(PMSE)[c(2,3)])
-%%  end.rcode
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
 
-%%  begin.rcode ass7-4,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="Histogram of eps"
-%%rm(list=ls())
-%%load('non-copas.Rdata')
-%%hist(eps, xlab='eps')
-%%  end.rcode
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass7-3} 
+
+}
+
+\caption[PMSE Copas vs]{PMSE Copas vs. Cross-validation given non-normal noise\label{fig:ass7-3}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[]
+
+
+{\centering \includegraphics[width=\maxwidth]{figure/latex-ass7-4} 
+
+}
+
+\caption[Histogram of eps]{Histogram of eps\label{fig:ass7-4}}
+\end{figure}
+
+
+\end{knitrout}
+
 \hspace{12 pt}  We want to evaluate
 
 
@@ -236,10 +324,10 @@ pre-shrunk predictor is lower than that of shrinkage estimated from cross-valida
 
 We have the same predictors as in statement 2, but here we do not have
 a normal noise $\epsilon$, but a histogram shown in the Figure. Also,
-we need a larger $\delta^2$ to strengthen the test, i.e. \rinline{del2}
+we need a larger $\delta^2$ to strengthen the test, i.e. 0.04
 Then we conduct a one-sided two-sample $t$-test on the PMSE values obtained
 from $N$ runs on the VS samples, the test gives a p-value of 
-\rinline{t.test(PMSE$copas, PMSE$crosval, alter = 'greater')$p.value}
+\ensuremath{4.3421\times 10^{-6}}
 which rejects the null hypothesis and shows that PMSE of Copas
 pre-shrunk predictor is larger than that of shrinkage estimated from cross-validation.
 
