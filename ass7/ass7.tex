@@ -30,115 +30,139 @@
 
 
 \begin{document}
-\section*{Math stats}
-Efron (2010) exercises
+\section*{Regression, Prediction and Shrinkage}
+In this assignment, we will demonstrate the comparison of prediction
+accuarcy among several linear predictors, i.e. ordinary least square
+(OLS) predictors, pre-shrunk predictors as in Copas(1983) and shrinkage
+predictor by cross-validation.
 
-\subsubsection*{2.5}
-Within Lemma 2.1, we have two expectations of functions
-\begin{displaymath}
-\begin{split}
-E\{\overline{Fdr}(\mathcal{Z}) | N_1(\mathcal{Z})\} 
-& = E\{ \frac{e_0(\mathcal{Z})}{N_0(\mathcal{Z}) + N_1(\mathcal{Z})} |N_1(\mathcal{Z})\}
-= E\{ \eta(N_0(\mathcal{Z})) | N_1(\mathcal{Z}) \} \\
-E\{Fdp(\mathcal{Z}) | N_1(\mathcal{Z})\} 
-& = E\{ \frac{N_0(\mathcal{Z})}{N_0(\mathcal{Z}) + N_1(\mathcal{Z})} |N_1(\mathcal{Z})\}
-= E\{ \zeta(N_0(\mathcal{Z})) | N_1(\mathcal{Z}) \}
-\end{split}
-\end{displaymath}
-where $\eta(N_0(\mathcal{Z}))$ is convex and $\zeta(N_0(\mathcal{Z}))$
-is concave.
-\subsubsection*{}
-Meanwhile, we have one function of expectations
-\begin{displaymath}
-\phi_1(\mathcal{Z}) = \frac{e_0(\mathcal{Z})}{e_0(\mathcal{Z}) + N_1(\mathcal{Z})}
-\end{displaymath}
-here, with null case independence,
-\begin{displaymath}
-e_0(\mathcal{Z}) = E\{ N_0(\mathcal{Z}) \} = E\{ N_0(\mathcal{Z}) | N_1(\mathcal{Z})\}
-\end{displaymath}
-Then, we have
-\begin{displaymath}
-\begin{split}
-\phi_1(\mathcal{Z}) &= \frac{e_0(\mathcal{Z})}{E\{N_0(\mathcal{Z})\} +  N_1(\mathcal{Z})} 
-= \eta(E\{N_0(\mathcal{Z}) | N_1(\mathcal{Z})\}) \\
-\phi_1(\mathcal{Z}) &= \frac{E\{N_0(\mathcal{Z})\}}{E\{N_0(\mathcal{Z})\} +  N_1(\mathcal{Z})} 
-= \zeta(E\{N_0(\mathcal{Z}) | N_1(\mathcal{Z})\})
-\end{split}
-\end{displaymath}
-Finally, with different function conditions for Jensen's inequality,
-we have:\newline
-for convex $\eta(\cdot)$,
-\begin{displaymath}
-\begin{split}
-\eta(E\{N_0(\mathcal{Z}) | N_1(\mathcal{Z})\}) &\leq E\{\eta(N_0(\mathcal{Z})) | N_1(\mathcal{Z}) \} \\
-\leftrightarrow
-\phi_1(\mathcal{Z}) &\leq E\{\overline{Fdr}(\mathcal{Z}) | N_1(\mathcal{Z})\} 
-\end{split}
-\end{displaymath}
-for concave $\zeta(\cdot)$,
-\begin{displaymath}
-\begin{split}
-\zeta(E\{N_0(\mathcal{Z}) | N_1(\mathcal{Z})\}) &\geq E\{\zeta(N_0(\mathcal{Z})) | N_1(\mathcal{Z}) \} \\
-\leftrightarrow
-\phi_1(\mathcal{Z}) &\geq E\{Fdp(\mathcal{Z}) | N_1(\mathcal{Z})\} 
-\end{split}
-\end{displaymath}
-That completes our proof for (2.30).
+\subsubsection*{Simulation Setup}
+\hspace{12 pt} 
+To demonstrate the required statements about prediction mean square
+error (PMSE) of the three predictors. We choose the simulation
+parameters as shown in the table below.
 
-
-
-
-
-
-
-\newpage
-\section*{Prostate microarray data}
-\hspace{12 pt} We have the prostate microarray data from the Efron
-book, a $6033 \times 102$ matrix $X=\{x_{ij}\}$.
-\begin{center}
-$x_{ij}$ = expression of gene $i$ on patient $j$, 
-\end{center}
-where $i=1,..,N$, $N=6033$; normal patients $j=1,...,50$ vs. cancer
-patients $j=51,...,102$.
-%%  begin.rcode ass6-00,cache=TRUE,results="markup",message=FALSE,echo=FALSE
+%%  begin.rcode ass7-00,cache=TRUE,results="hide",message=FALSE,echo=FALSE
 %%rm(list=ls())
-%%load("prostatedata.Rda")
-%%N <- dim(prostatedata)[1]
+%%require(MASS)
+%%load('copas.Rdata')
 %%  end.rcode
 
+\begin{center}
+%%\caption{Table 1}
+\begin{tabular}{l|c|r} \hline
+\texttt{Simulation Parameter} & \texttt{Symbol} & \texttt{Value}  \\ \hline
+predictor dimension & $p$ & \rinline{p} \\ \hline
+number of overall samples & $n$ & \rinline{n} \\
+number of training samples & $n_{CS}$ & \rinline{n.cs} \\
+number of test samples & $n_{VS}$ & \rinline{n.vs} \\ \hline
+true intercept & $\alpha$ & \rinline{alpha} \\ 
+true coefficients & $\bm{\beta}$ &  $\in$[\rinline{min(beta)}, \rinline{max(beta)}]\\ \hline
+noise-signal-ratio & $\delta^2$ & \rinline{del2} \\
+noise variance & $\sigma^2$ & \rinline{sig2} \\ \hline
+simulation runs & $N$ & \rinline{N.rep} \\ \hline
+cross-validation folds & $k$ & \rinline{k} \\ \hline
+\end{tabular}
+\end{center}
 
-\subsubsection*{Efron Figure 2.1}
-\hspace{12 pt} The large-scale hypothesis testing that we perform on
-this dataset use the two-sample $t$-statistic. \newline
-For testing gene $i$,
-\begin{displaymath}
-t_i = \frac{\bar{x}_i(2) - \bar{x}_i(1)}{s_i}
-\end{displaymath}
-\begin{displaymath}
-\bar{x}_i(1) = \frac{1}{50} \sum_{j=1}^{50} x_{ij} ; \hspace{8 pt}
-\bar{x}_i(2) = \frac{1}{52} \sum_{j=51}^{102} x_{ij}
-\end{displaymath}
-\begin{displaymath}
-s_i^2 = \frac{\sum_{j=1}^{50} (x_{ij} - \bar{x}_i(1))^2 +
-  \sum_{j=51}^{102} (x_{ij} - \bar{x}_i(2))^2 }{100} \cdot (\frac{1}{50} + \frac{1}{52}) 
-\end{displaymath}
-Then, we transform to the $z$-values, 
-where $\Phi$ is the standard normal CDF and $F_{100}$ is the Student-$t$ CDF
-with 100 degrees of freedom,
-\begin{displaymath}
-z_i = \Phi^{-1}(F_{100}(t_i))
-\end{displaymath}
-Finally, we reproduce Efron
-Figure 2.1, histogram of $z$-values testing $N=6033$ genes
-for possible involvement with prostate cancer.
+In order to show the strength of Copas(1983) method, we would like a
+relatively large $p$ with a relatively small $n$. Also, the error
+variance $\sigma^2$ should be comparable to $\bm{\beta^T}V\bm{\beta}$
+with non-zero noise-signal-ratio $\delta^2$. So, as suggested by the
+Breiman\&Friedman(1997) paper design, we set our simulation parameters
+as above. The true linear model parameters, $\alpha, \bm{\beta}$ ,are not critical, so we
+just made some simple choices. Moreover, for strong hypothesis testing
+power, we have fairly large repetition runs, $N$, of simulations.
 
-%%  begin.rcode ass6-21,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="Reproduced Efron Figure 2.1"
-%%x1 <- rowMeans(prostatedata[ ,1:50])
-%%x2 <- rowMeans(prostatedata[ ,51:102])
-%%s2 <- (1/50 + 1/52)/100 * (rowSums((prostatedata[ ,1:50] - x1)^2) + rowSums((prostatedata[ ,51:102] - x2)^2))
-%%t <- (x2 - x1) / sqrt(s2)
-%%z <- qnorm(pt(t, 100)) #greater
-%%hist(z, breaks=100, xlim=c(-5,5), xlab="z values->", ylab="Frequency", main="", col="grey")
+
+As for the data statistics, for each run, the predictor variables are
+generated according to a normal distribution with zero mean and
+covariance matrix $\bm{\Xi}$,
+\begin{displaymath}
+\begin{split}
+\bm{x} &\sim  \mathcal{\bm{N}}(\bm{0}, \bm{\Xi})\\
+\bm{\Xi} &= [V_{ij}]_{p\times p} , \hspace{12 pt} V_{ij} = r^{|i-j|},
+\hspace{12 pt} r \sim \mathcal{U}[0,1]
+\end{split}
+\end{displaymath}
+Also, the model matrix $\bm{X}$ is column centered for simplicity
+(without loss of generality), and we have $\bm{V}=\frac{1}{n}\bm{X^TX}$. 
+Meanwhile, for both \textit{construction sample}(CS) and
+\textit{validation sample}(VS), the data sample vector
+$\bm{y}$ are generated independently w.r.t each element,
+\begin{displaymath}
+\begin{split}
+y &= \alpha + \bm{\beta^Tx} + \epsilon\\
+\epsilon &\sim \mathcal{N}(0, \sigma^2)
+\end{split}
+\end{displaymath}
+So, we can see that the randomness in my simulation comes from three
+sources: first, the randomness between each run (rep. of dim=$N$); second, the
+randomness in the data noise ($\epsilon$ of dim=$n$); and finally, the
+randomness in the predictive factors ($x$ of dim=$p$).
+
+
+Additionally, to verify the correctness of my implementation, we would
+like to check if our estimates, $\hat{\sigma}^2$, are unbiased according to
+a one-sample $t$-test with target $\mu_0=\sigma^2$.
+\begin{displaymath}
+\begin{split}
+\hat{\sigma}^2 &= \frac{1}{\nu}\sum_{i=1}^{n_{CS}} (y_i - \hat{y}_i^{OLS})^2 \\
+\nu &= n_{CS} - (p+1)
+\end{split}
+\end{displaymath}
+And the two-sided $t$-test results in a p-value of
+\rinline{t.test(sig2hat, mu=sig2)$p.value}, 
+which confirms that our estimates are unbiased.
+
+Moreover, we also want to check if the $\bm{V}$ (as defined in
+Copas(1983)) is close to the true covariance matrix $\bm{\Xi}$ in
+terms of the Frobenius norm. 
+\begin{displaymath}
+\begin{split}
+|\bm{V}||_F &= \sum_{i=1}^p \sum_{j=1}^p |V_{ij}|^2 \\
+||\bm{\Xi}||_F &= \sum_{i=1}^p \sum_{j=1}^p |\Xi_{ij}|^2 \\
+\end{split}
+\end{displaymath}
+We conduct a two-sample $t$-test on the $N$ samples of matrix norms
+and get the p-value of 
+\rinline{t.test(Vnorm, covXnorm)$p.value},
+which confirms that we can trust the $\bm{V}$ approximation.
+
+
+Now, we are safe to proceed and check the hypothesis in the statements.
+
+
+\subsubsection*{Statement 1: Copas vs. OLS}
+\hspace{12 pt}  We want to evaluate
+
+
+\hspace{12 pt} \textit{H0: the PMSE of Copas pre-shrunk predictor is
+  lower than OLS} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: the PMSE of Copas pre-shrunk predictor is NOT
+  lower than OLS} \newline
+
+
+We have the predictors with OLS parameter estimates, $\hat{\alpha},
+\bm{\hat{\beta}}$, for data
+\begin{displaymath}
+\begin{split}
+\hat{y}^{OLS} &= \hat{\alpha} + \bm{\hat{\beta}^Tx} \\
+\hat{y}^{Copas} &= \hat{\alpha} + \hat{K}\bm{\hat{\beta}^Tx},
+\hspace{12 pt} \hat{K} = 1 - \frac{(p-2)\hat{\sigma}^2\nu}{n_{CS}(\nu+2)\bm{\hat{\beta}^TV\hat{\beta}}}
+\end{split}
+\end{displaymath}
+
+
+
+
+
+
+
+%%  begin.rcode ass7-1,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="PMSE OLS vs. Copas"
+%%PMSE <- data.frame(PMSE)
+%%boxplot(PMSE$copas, PMSE$ols, names=names(PMSE)[c(2,1)])
 %%  end.rcode
 
 
