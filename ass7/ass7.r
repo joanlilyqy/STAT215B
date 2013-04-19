@@ -8,19 +8,19 @@ require(MASS)
 #### Test setup
 # sizes
 p <- 50
-n <- 500
+n <- 100
 n.cs <- n * 0.8
 n.vs <- n - n.cs
 # parameters
 alpha <- 0.1
 beta <- sample(1:p,p) / 10
-del2 <- 0.1^2 #NSR
+del2 <- 0.2^2 #NSR
 sig2 <- del2 * sum(beta^2) * n.cs
 # model
 my.model <- function(x, a,b,K) a+K*crossprod(b,x)
   
 ## simulations
-N.rep <- 1000
+N.rep <- 10
 PMSE<-list()
 PMSE$ols <- rep(0, N.rep)
 PMSE$copas <- rep(0, N.rep)
@@ -48,15 +48,16 @@ V <- 1/n.cs * crossprod(X.cs)
 Vnorm[i] <- norm(V, 'F')
 covXnorm[i] <- norm(cov(X.cs), 'F')
 
-eps <- rnorm(n, mean=0, sd=sqrt(sig2)) #copas
+#eps <- rnorm(n, mean=0, sd=sqrt(sig2)) #copas
 # non-copas
-#eps <- rnorm(n/2, mean=-3*sqrt(sig2), sd=sqrt(sig2))
-#eps <- c(eps, rnorm(n/2, mean=3*sqrt(sig2), sd=sqrt(sig2)))
+sd <- sqrt(sig2/30)
+eps <- rnorm(n/2, mean=-6*sd, sd=sd)
+eps <- c(eps, rnorm(n/2, mean=6*sd, sd=sd))
 
 ii.cs <- sample(1:n, n.cs)
 y.cs <- apply(X.cs, 1, my.model, a=alpha,b=beta,K=1) + eps[ii.cs]
 # VS
-X.vs <- mvrnorm(n.vs, rep(0,p), cov)
+X.vs <- mvrnorm(n.vs, rep(0,p), cov+diag(n.vs, r))
 X.vs <- t(t(X.vs)-colMeans(X.vs))
 y.vs <- apply(X.vs, 1, my.model, a=alpha,b=beta,K=1) + eps[-ii.cs]
 
@@ -74,7 +75,7 @@ bVb <- t(beta.ols) %*% V %*% beta.ols
 K$copas[i] <- 1 - (p-2)*sig2hat[i]*nu/(n.cs*(nu+2)*bVb)
 
 # K.tide (cross validation, k-fold)
-k=10
+k=n.cs
 K.cv <- rep(0, k)
 pmse.cv <- rep(0, k)
 ids <- 1:n.cs
@@ -92,12 +93,19 @@ for (j in 1:k){
   a <- mm$coeff[1]
   b <- mm$coeff[-1]
 
-  ytt.ols <- apply(Xtt, 1, my.model, a=a,b=b,K=1)
-  K.cv[j] <- abs(cov(ytt,ytt.ols))/var(ytt.ols)
-  ytt.cv <- apply(Xtt, 1, my.model, a=a,b=b,K=K.cv[j])
+#  ytt.ols <- apply(Xtt, 1, my.model, a=a,b=b,K=1)
+#  K.cv[j] <- abs(cov(ytt,ytt.ols))/var(ytt.ols)
+#  ytt.cv <- apply(Xtt, 1, my.model, a=a,b=b,K=K.cv[j])
+
+  ytt.ols <- a + crossprod(b, Xtt)
+  K.cv[j] <- abs(ytt/(ytt.ols - a))
+  if (K.cv[j] > 1) K.cv[j] = 1
+  ytt.cv <- a + K.cv[j]*crossprod(b, Xtt)
+  
   pmse.cv[j] <- mean((ytt - ytt.cv)^2)
 }
-K$crosval[i] <- K.cv[which(pmse.cv == min(pmse.cv))]
+#K$crosval[i] <- K.cv[which(pmse.cv == min(pmse.cv))]
+K$crosval[i] <- mean(K.cv)
 
 
 # PMSE (VS)
@@ -109,18 +117,19 @@ PMSE$copas[i] <- mean((y.vs - y.copas)^2)
 PMSE$crosval[i] <- mean((y.vs - y.crosval)^2)
 }
 
-save(list=ls(), file='copas.Rdata')
+save(list=ls(), file='non-copas.Rdata')
 #load('copas.Rdata')
-
-
-mean(K$copas)
-mean(K$crosval)
+#load('non-copas.Rdata')
 
 PMSE <- data.frame(PMSE)
 boxplot(PMSE$copas, PMSE$ols, names=names(PMSE)[c(2,1)])
 t.test(PMSE$copas, PMSE$ols, alter = 'less')
-t.test(PMSE$copas, PMSE$crosval, alter = 'less')
-#t.test(PMSE.copas, PMSE.crosval, alter = 'greater') #non-copas
+boxplot(PMSE$copas, PMSE$crosval, names=names(PMSE)[c(2,3)])
+#t.test(PMSE$copas, PMSE$crosval, alter = 'less')
+t.test(PMSE$copas, PMSE$crosval, alter = 'greater') #non-copas
+
+K <- data.frame(K)
+colMeans(K)
 
 ######################
 #check
@@ -130,7 +139,7 @@ t.test(PMSE$copas, PMSE$crosval, alter = 'less')
 #hist(eps)
 
 # sig2
-t.test(sig2hat, mu=sig2)
+#t.test(sig2hat, mu=sig2)
 
 # V vs. cov
-t.test(Vnorm, covXnorm)
+#t.test(Vnorm, covXnorm)

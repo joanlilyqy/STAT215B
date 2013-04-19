@@ -138,14 +138,14 @@ Now, we are safe to proceed and check the hypothesis in the statements.
 
 
 \hspace{12 pt} \textit{H0: the PMSE of Copas pre-shrunk predictor is
-  lower than OLS} \newline
+  the same as that of OLS} \newline
 \vspace{2 pt}
-\hspace{24 pt} \textit{HA: the PMSE of Copas pre-shrunk predictor is NOT
-  lower than OLS} \newline
+\hspace{24 pt} \textit{HA: the PMSE of Copas pre-shrunk predictor is
+  lower than that of OLS} \newline
 
 
 We have the predictors with OLS parameter estimates, $\hat{\alpha},
-\bm{\hat{\beta}}$, for data
+\bm{\hat{\beta}}$, for CS data samples,
 \begin{displaymath}
 \begin{split}
 \hat{y}^{OLS} &= \hat{\alpha} + \bm{\hat{\beta}^Tx} \\
@@ -153,16 +153,89 @@ We have the predictors with OLS parameter estimates, $\hat{\alpha},
 \hspace{12 pt} \hat{K} = 1 - \frac{(p-2)\hat{\sigma}^2\nu}{n_{CS}(\nu+2)\bm{\hat{\beta}^TV\hat{\beta}}}
 \end{split}
 \end{displaymath}
+and then conduct a one-sided two-sample $t$-test on the PMSE values obtained
+from $N$ runs on the VS samples,
+\begin{displaymath}
+PMSE = \frac{1}{n_{VS}} \sum_{i=1}^{n_{VS}} (y_i - \hat{y}_i)^2
+\end{displaymath}
+the test gives a p-value of 
+\rinline{t.test(PMSE$copas, PMSE$ols, alter = 'less')$p.value}
+which rejects the null hypothesis and shows that PMSE of Copas
+pre-shrunk predictor is lower than that of OLS.
 
 
-
-
-
-
-
-%%  begin.rcode ass7-1,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="PMSE OLS vs. Copas"
+%%  begin.rcode ass7-1,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="PMSE Copas vs. OLS"
 %%PMSE <- data.frame(PMSE)
 %%boxplot(PMSE$copas, PMSE$ols, names=names(PMSE)[c(2,1)])
+%%  end.rcode
+
+
+
+\subsubsection*{Statement 2: Copas vs. Cross-validation}
+\hspace{12 pt}  We want to evaluate
+
+
+\hspace{12 pt} \textit{H0: the PMSE of Copas pre-shrunk predictor is
+  the same as that of shrinkage estimated from cross-validation} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: the PMSE of Copas pre-shrunk predictor is
+  lower than that of shrinkage estimated from cross-validation} \newline
+
+
+We have the predictors with OLS parameter estimates, $\hat{\alpha},
+\bm{\hat{\beta}}$, for CS data samples,
+\begin{displaymath}
+\begin{split}
+\hat{y}^{Copas} &= \hat{\alpha} + \hat{K}\bm{\hat{\beta}^Tx},
+\hspace{12 pt} \hat{K} = 1 -\frac{(p-2)\hat{\sigma}^2\nu}{n_{CS}(\nu+2)\bm{\hat{\beta}^TV\hat{\beta}}}\\
+\hat{y}^{CV} &= \hat{\alpha} + \tilde{K}\bm{\hat{\beta}^Tx},
+\hspace{12 pt} \tilde{K} = K^{CV}_{l^*}, \hspace{12 pt} l^* = min_lPMSE^{CV}_l\\
+&\hspace{64 pt} K^{CV}_l = \frac{Cov(y^{CV:VS_l},  \hat{y}^{CV:VS_l})}{Var(\hat{y}^{CV:VS_l})},
+\hspace{12 pt} \hat{y}^{CV:VS_l}_i = \hat{\alpha}^{CV:CS_l} + (\bm{\hat{\beta}}^{CV:CS_l})^T\bm{x}_i^{CV:VS_l}\\
+&\hspace{64 pt} PMSE^{CV}_l = \frac{1}{n_{CS}/k} \sum_{i=1}^{n_{CS}/k} (y^{CV:VS_l}_i - \hat{y}^{CV:VS_l}_i)^2\\
+\end{split}
+\end{displaymath}
+and then conduct a one-sided two-sample $t$-test on the PMSE values obtained
+from $N$ runs on the VS samples, the test gives a p-value of 
+\rinline{t.test(PMSE$copas, PMSE$crosval, alter = 'less')$p.value}
+which rejects the null hypothesis and shows that PMSE of Copas
+pre-shrunk predictor is lower than that of shrinkage estimated from cross-validation.
+
+
+%%  begin.rcode ass7-2,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="PMSE Copas vs. Cross-validation"
+%%boxplot(PMSE$copas, PMSE$crosval, names=names(PMSE)[c(2,3)])
+%%  end.rcode
+
+
+
+\subsubsection*{Statement 3: Copas vs. Cross-validation | non-normal noise}
+\hspace{12 pt}  We want to evaluate
+
+
+\hspace{12 pt} \textit{H0: the PMSE of Copas pre-shrunk predictor is
+  the same as that of shrinkage estimated from cross-validation under
+  non-normal noise} \newline
+\vspace{2 pt}
+\hspace{24 pt} \textit{HA: the PMSE of Copas pre-shrunk predictor is
+  larger than that of shrinkage estimated from cross-validation under
+  non-normal noise} \newline
+
+
+We have the same predictors as in statement 2, but here 
+
+
+
+
+
+and then conduct a one-sided two-sample $t$-test on the PMSE values obtained
+from $N$ runs on the VS samples, the test gives a p-value of 
+%\rinline{t.test(PMSE$copas, PMSE$crosval, alter = 'greater')$p.value}
+which rejects the null hypothesis and shows that PMSE of Copas
+pre-shrunk predictor is larger than that of shrinkage estimated from cross-validation.
+
+
+%%  begin.rcode ass7-3,cache=TRUE,echo=FALSE,results="markup",dev='pdf',fig.height=6,fig.width=7,fig.align="center",fig.cap="PMSE Copas vs. Cross-validation given non-normal noise"
+%%boxplot(PMSE$copas, PMSE$crosval, names=names(PMSE)[c(2,3)])
 %%  end.rcode
 
 
