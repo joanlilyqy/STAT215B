@@ -95,14 +95,3 @@ for (i in 1:length(wid)){
 write.csv(IBMC, file='IBMC.csv')
 
 
-## wafer meas heatmap
-plotWmap <- function(dm, id){
-  title <- sprintf("Lot%dWafer%d", id$l, id$w)
-  fig <- ggplot(dm, aes(x = chipX, y = chipY)) + scale_x_continuous(breaks=1:13) + scale_y_continuous(breaks=1:13)
-  fig <- fig + geom_point(aes(colour = intpol),shape = 15,size = 10) + ggtitle(title)
-  fig <- fig + guides(colour = guide_colorbar(barwidth = 0.5, barheight = 20))
-  fig
-}
-dm <- data.frame(cbind(wfgr,intpol))
-plotWmap(dm, gid)
-
