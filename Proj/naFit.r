@@ -68,8 +68,8 @@ which(sill.est == 0)
 
 wfgr <- data.frame(cbind(nna.x, nna.y))
 names(wfgr) <- c('chipX','chipY')
-rng <- min(max(nna.x),max(nna.y))
-nug <- 0
+rng <- min(max(nna.x),max(nna.y)) #range
+nug <- 0 #nugget
 
 ndie <- length(nna.x)
 IBMC <- data.frame(matrix(0, nrow=length(wid)*ndie,

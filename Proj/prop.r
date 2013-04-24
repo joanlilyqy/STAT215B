@@ -13,7 +13,9 @@ id <- ibm$lot_ID*100 + ibm$wafer_ID
 length(unique(id))
 sum(table(floor(unique(id)/100)))
 
+jpeg(file='wafer_counts.jpg')
 plot(table(floor(unique(id)/100)),col='blue',lwd=2,typ='h',xlab='Lot ID',ylab='Num. of wafers within lot')
+dev.off()
 
 ## Fig.2
 l23w16 <- ibm[ibm$lot_ID == 23 & ibm$wafer_ID == 16,]

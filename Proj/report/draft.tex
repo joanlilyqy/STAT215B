@@ -1,0 +1,403 @@
+\documentclass[12pt]{article}
+\usepackage{latexsym,amssymb,amsmath} % for \Box, \mathbb, split, etc.
+\usepackage{bm} % for bold math
+% \usepackage[]{showkeys} % shows label names
+\usepackage{cite} % sorts citation numbers appropriately
+\usepackage{path}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage[pdftex]{graphicx}
+
+% horizontal margins: 1.0 + 6.5 + 1.0 = 8.5
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\textwidth}{6.5in}
+% vertical margins: 1.0 + 9.0 + 1.0 = 11.0
+\setlength{\topmargin}{0.0in}
+\setlength{\headheight}{12pt}
+\setlength{\headsep}{13pt}
+\setlength{\textheight}{625pt}
+\setlength{\footskip}{24pt}
+
+\renewcommand{\textfraction}{0.10}
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\floatpagefraction}{0.90}
+
+\makeatletter
+\setlength{\arraycolsep}{2\p@} % make spaces around "=" in eqnarray smaller
+\makeatother
+
+% change equation, table, figure numbers to be counted inside a section:
+\numberwithin{equation}{section}
+\numberwithin{table}{section}
+\numberwithin{figure}{section}
+
+% begin of personal macros
+\newcommand{\half}{{\textstyle \frac{1}{2}}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\myth}{\vartheta}
+\newcommand{\myphi}{\varphi}
+
+\newcommand{\IN}{\mathbb{N}}
+\newcommand{\IZ}{\mathbb{Z}}
+\newcommand{\IQ}{\mathbb{Q}}
+\newcommand{\IR}{\mathbb{R}}
+\newcommand{\IC}{\mathbb{C}}
+\newcommand{\Real}[1]{\mathrm{Re}\left({#1}\right)}
+\newcommand{\Imag}[1]{\mathrm{Im}\left({#1}\right)}
+
+\newcommand{\norm}[2]{\|{#1}\|_{{}_{#2}}}
+\newcommand{\abs}[1]{\left|{#1}\right|}
+\newcommand{\ip}[2]{\left\langle {#1}, {#2} \right\rangle}
+\newcommand{\der}[2]{\frac{\partial {#1}}{\partial {#2}}}
+\newcommand{\dder}[2]{\frac{\partial^2 {#1}}{\partial {#2}^2}}
+
+\newcommand{\nn}{\mathbf{n}}
+\newcommand{\xx}{\mathbf{x}}
+\newcommand{\uu}{\mathbf{u}}
+
+\newcommand{\junk}[1]{{}}
+
+\newcommand{\bms}{\bm{s}}
+\newcommand{\bmh}{\bm{h}}
+
+% set two lengths for the includegraphics commands used to import the plots:
+\newlength{\fwtwo} \setlength{\fwtwo}{0.45\textwidth}
+% end of personal macros
+
+\begin{document}
+\DeclareGraphicsExtensions{.jpg}
+
+\begin{center}
+\textbf{\Large Enhanced Process Monitoring with Metrology Data} \\[6pt]
+  Haotian Liu, Ying Qiao and Zhongwei Zhu \\[6pt]
+  \{liuht05, yingqiao, zhongweizhu\}@berkeley.edu
+\end{center}
+
+\begin{abstract}
+to be filled later ......
+\end{abstract}
+
+\subparagraph{Key words.} to be filled later ......
+
+
+\section{Introduction}
+
+\hspace{12 pt}
+High-quality statistical process control is always important in
+semiconductor processing in many high-volume manufacturing
+industries\cite{DAC09}. Variability, which can arise from all steps in
+semiconductor fabrication hierarchy, as shown in Figure \ref{metro_hier},
+causes performance degradation 
+in electrical circuits on the chips. Monitoring and modeling the
+fabrication process is accordingly crucial for choosing the reliable 
+chips at a low cost. Systematic spatial variation can cause spatial
+correlation between structures on a die, for example, devices that are
+in close proximity behave much more similarly than those spaced
+farther apart\cite{KedarPHD}. Variogram-based modeling of spatial
+correlation has been advocated in the recent literatures to
+characterize the wafer-level spatial variability pattern. 
+
+
+In this project, we aim at presenting a statistical framework for 
+process monitoring based on an electrical metrology dataset from a
+high-volume fabrication line. The proposed framework focuses on 
+detecting wafers with disrupted spatial patterns, that is,
+\emph{fault} wafers that contain a large portion of dies with distinct
+electrical metrology results from other wafers. Early detection of
+these spatially disrupted wafers during the manufacturing process can
+greatly reduce the metrology cost and improve the overall chip performance yield.
+Our FDC (Fault wafer Detection and Characterization) scheme is developed on the
+``complete'' wafer dataset with missing die values interpolated using Kriging
+method\cite{Cressie93}. Kernel PCA [cite] and one-class SVM [cite] method have
+been applied to detect the fault wafers.   
+
+
+The rest of the report is organized as follows: section \ref{kriging}
+will offer a brief dicussion of spatial statistics and Kriging method
+for missing data interpolation; section \ref{kernal} dicusses the PCA
+(principle component analysis) and kernel PCA methods for FDC; section
+\ref{svm} shows the one-class SVM procedure for FDC; lastly, dection
+performance comparisons and concluding remarks are presented in
+section \ref{result} and section \ref{summary}.
+
+\begin{figure} \centering
+  \includegraphics[width=0.6\textwidth]{metro_hier}
+  \caption{A typical metrology hierarchy of semiconductor manufacturing}
+  \label{metro_hier}
+\end{figure}
+
+
+\section{Missing Data Interpolation with Kriging} \label{kriging}
+
+\hspace{12 pt}
+In this section, we first offer a brief discussion of how spatial
+statistics are used to characterize the spatial variation of wafers
+and its application to interpolate the missing die values. Then we
+explore the data structure of our electrical metrology
+measurements and demonstrate the wafer dataset after missing data
+interpolation. This ``complete'' dataset will be used in the following
+FDC development.  
+
+
+\subsection{Spatial Statistics for Kriging} \label{spatial}
+
+\hspace{12 pt}
+The spatial variation of circuit performance is introduced by the
+nature of the fabrication process. For example, during plasma etching
+operations, the center peak shape of RF (radio-frequency) electric
+field distribution leads to a similar center peak shape of etch rate,
+that is, etch rate varies radially across the wafer\cite{dkPHD}. Given
+the assumption that electrical metrology data is intrinsically
+\emph{stationary}, we can characterize each wafer using a spatial
+variogram.
+
+
+Let $\mathcal{X}_s = \{ X(\bms) : \bms \in \mathcal{R} \}$ be a
+collection of random variables from a stationary spatial process in
+region $\mathcal{R}$, then we have
+\begin{equation} \label{ssmean}
+  E[X(\bms) - X(\bms + \bmh)] = 0
+\end{equation}
+and
+\begin{equation} \label{ssvar}
+\begin{split}
+  Var[X(\bms) - X(\bms + \bmh)] &= Var[X(\bm{0}) - X(\bmh)] \\
+  &= E[X(\bm{0}) - X(\bmh)]^2 \\
+  &= 2\gamma(\bmh)
+\end{split}
+\end{equation}
+for all $\bms \in \mathcal{R}$. In spatial statistics, $2\gamma$ is
+known as the \emph{variogram}. Here, for a stationary spatial process,
+we can see that the covariance between the values at any two locations 
+depends only on the separation vector $\bmh$. Defining a common
+auto-covariance function $C(\bmh) = Cov(X(\bms), X(\bms +
+\bmh))$, we can then express the variogram as
+\begin{equation} \label{variodef}
+\begin{split}
+  2\gamma(\bmh) &= Var[X(\bms) - X(\bms + \bmh)] \\
+  &= Var(X(\bm{0})) + Var(X(\bmh)) - 2Cov(X(\bms), X(\bms + \bmh)) \\
+  &= 2[C(\bm{0}) - C(\bmh)]
+\end{split}
+\end{equation}
+
+
+A version of empirical, or classical, estimation of variogram is given as
+\begin{equation} \label{varioest0}
+  2\hat{\gamma}(h) = \frac{1}{|N(h)|} \sum_{N(h)} \left( X(\bms_i)
+  - X(\bms_j) \right)^2 
+\end{equation}
+where $h$ degrades to a scaler ignoring the directional information and 
+\begin{equation} \label{Nhdef}
+  N(h) \doteq \{ (\bms_i, \bms_j) : \norm{\bms_i - \bms_j}{2} = h; i,j = 1,2,...,n \}
+\end{equation}
+denotes the set of pairs of sample points with $h$ distance between
+them, and $|N(h)|$ is the number of pairs in this set. Note that in
+this classical estimator, the square operation inside the summation
+greatly magnifies any outlier obervation, so a more robust estimator
+was introduced by Cressie and Hawkins\cite{Cressie93}
+\begin{equation} \label{varioest1}
+  2\hat{\gamma}(h) = \frac{1}{0.457+\frac{0.494}{|N(h)||}}\left[\frac{1}{|N(h)|}
+  \sum_{N(h)} (X(\bms_i) - X(\bms_j))^{1/2}\right]^4
+\end{equation}
+
+
+\begin{figure} \centering
+  \includegraphics[width=0.6\textwidth]{vario_model}
+  \caption{Illustration of parameters in the general semivariogram model}
+  \label{vario_model}
+\end{figure}
+
+
+The variogram or semivariogram, $\gamma(h)$, 
+is perferred here because it tends to filter the
+influence of a spatially varying mean and thus avoids the estimation
+of the mean. The estimated empirical variogram may not be positive
+definite and hence not directly usable as weights in \emph{kriging}, 
+without constraints or further processing. This explains why
+only a limited number of valid parametric variogram models can be used.
+A general form of variogram model for isotropic process is given by
+\begin{equation} \label{variomod}
+  \hat{\gamma}(h) = c_0 + (\sigma^2 - c_0)[ 1- \rho(h)]
+\end{equation}
+where the parametric auto-correlation function(ACF) can be expressed as 
+\begin{equation} \label{acf}
+  \rho(h) = \exp{ \left[-\left( \frac{h}{\xi} \right)^{2\phi} \right] }
+\end{equation}
+Figure \ref{vario_model} illustrates various parameters used to
+describe the (semi)variogram. The \emph{nugget}, $c_0$, is an 
+independent component of variation that does not depend on the lag
+and accounts for the discontinuity at zero lag. The partial
+\emph{sill}, $\sigma^2$, limits the variogram tending to infinite
+lag. Also, the lag value at which variogram reaches the sill is
+known as the \emph{range} (denoted as $r$ here). When applied to our
+real dataset, we adopted a simpler cubic approximation 
+of the ACF model in (\ref{acf}), and that gives the parametric variogram
+model that we want to estimate as \cite{geoR},
+\begin{equation} \label{cubic}
+  2\hat{\gamma}(h;\bm{\theta}) = 
+\begin{cases} 
+  2c_0 + 2(\sigma^2 - c_0) 
+  \left[ 7\left( \frac{h}{r} \right)^2 - 8.75\left( \frac{h}{r} \right)^3
+  + 3.5\left( \frac{h}{r}\right)^5 - 0.75\left( \frac{h}{r}\right)^7
+  \right] & \mbox{if $h<r$} \\
+  2\sigma^2 & \mbox{otherwise}
+\end{cases}
+\end{equation}
+Let $\bm{\theta} \doteq (c_0, \sigma^2, r)$ denotes the vector of
+parameters that need to be estimated for characterizing the
+variogram. In this work, we will employ the weighted least square method
+to get the estimator,
+\begin{equation} \label{variowls}
+  \hat{\bm{\theta}} = arg\min_{\theta} \sum_h |N(h)|\left[
+    2\hat{\gamma}(h; \bm{\theta}) - 2\hat{\gamma}(h) \right]^2
+\end{equation}
+where $N(h)$ is given by (\ref{Nhdef}), $2\hat{\gamma}(h)$ and
+$2\hat{\gamma}(h;\bm{\theta})$ are given by (\ref{varioest1}) and
+(\ref{cubic}) respectively. We can thereafter use this model in
+ordinary kriging method for missing data interpolation. 
+
+
+Interpolating missing values by kriging is based on the idea that the
+value at an unknown point should be a weighted average of the known
+values at its neighbors \cite{Cressie93}. 
+The spatial inference of $X$ at an unobserved location $\bms_0$ is
+calculated from a linear combination of the observed neighboring
+values $\{X(\bms_i), i=1,2,...,n\}$,
+\begin{equation} \label{nawls}
+  \hat{X}(\bms_0) = \sum_{i=1}^n w_i(\bms_0)X(\bms_i) = \bm{W}^T\bm{X}_n
+\end{equation}
+where $\bm{W} = \left[ w_1(\bms_0) \quad w_2(\bms_0) \quad \cdots 
+\quad w_n(\bms_0) \right]^T$, and 
+$\bm{X}_n = \left[ X(\bms_1) \quad X(\bms_2) \quad \cdots
+\quad X(\bms_n) \right]^T$. The error term is therefore declared as
+\begin{equation} \label{errordef}
+  \epsilon(\bms_0) \doteq \hat{X}(\bms_0) - X(\bms_0) 
+  = \left[ \bm{W}^T \quad -1 \right] \cdot \left[ \bm{X}_n \quad X(\bms_0) \right]^T
+\end{equation}
+To get a best linear unbiased estimator, the kriging linear system
+will be the result of this optimization problem,
+\begin{equation} \label{krigsys}
+\begin{split}
+  \min_{\bm{W}} \quad & Var(\epsilon(\bms_0))\\
+  \mbox{s.t.} \quad & E(\epsilon(\bms_0)) = 0
+\end{split}
+\end{equation}
+
+
+In \emph{ordinary kriging}, stationarity of the first moment of
+all random variables is assumed, $ E[X(\bms_i)] = E[X(\bms_0)] = m$,
+where $m$ is unknown. So the constraint of unbiasness is 
+\begin{equation} \label{unbias}
+\begin{split}
+  E(\epsilon(\bms_0)) = 0 \quad 
+  \Leftrightarrow \quad &E(\bm{W}^T\bm{X}_n - X(\bms_0)) = 0 \\
+  \Leftrightarrow \quad &\bm{W}^TE(\bm{X}_n) = E(X(\bms_0)) \\
+  \Leftrightarrow \quad &\bm{W}^T\bm{1} = 1
+\end{split}
+\end{equation}
+and the error variance is
+\begin{equation} \label{varerr}
+\begin{split}
+  Var(\epsilon(\bms_0)) &= Var(\hat{X}(\bms_0) - X(\bms_0)) \\
+  &=[\bm{W}^T \quad -1] \cdot 
+  \begin{bmatrix}
+    Var(\bm{X}_n^T) &  Cov(\bm{X}_n^T,  X(\bms_0))\\
+    \\
+    Cov^T(\bm{X}_n^T,  X(\bms_0)) & Var(X(\bms_0))
+  \end{bmatrix}
+  \cdot \begin{bmatrix}
+    \bm{W} \\
+    \\
+    -1
+  \end{bmatrix} \\
+ &=\bm{W}^T\mathbb{V}(\bm{X}_n^T)\bm{W} - \mathbb{C}^T(\bm{X}_n^T, X(\bms_0))\bm{W}
+  - \bm{W}^T\mathbb{C}(\bm{X}_n^T, X(\bms_0)) + \mathbb{V}(X(\bms_0))
+\end{split}
+\end{equation}
+Solving the optimization problem results in the kriging system that
+gives us $\hat{\bm{W}}$ and the estimate $\hat{X(\bms_0)}=\hat{\bm{W}}^T\bm{X}_n$.
+
+
+\subsection{Missing Data Interpolation} \label{nafit}
+
+\hspace{12 pt}
+The data in this project comes from a high-volume manufacturing line
+of 65 nm technology process at IBM. It consists of measurements on 348
+wafers that span 23 lots, with an uneven number of wafers within each
+lot. Each wafer contains 117 dies (also known as chips), with varied
+numbers of dies not measured on each wafer, that is, missing die
+values. 14 frequency measurements of ring oscillators were performed
+at different locations within the die. Owing to the proprietary nature
+of the data, all measured values are presented in arbitrary units
+without loss in the generality of our proposed procedures. 
+Figure \ref{wafer_counts} displays the wafer allocations among the
+lots for simple visualization of the dataset. 
+
+
+In our context, $X$ represents the mean of the 14 PSRO measurements
+and $\bmh = \{ (x_i, y_i) \}$ is the set of chip locations on the wafer.
+Figure \ref{vario_fit} shows a variogram model fitted to the
+emprical variogram of a typical wafer (Lot 1 Wafer 7). Figure
+\ref{wafer_fill} demonstrate the missing value interpolation performed
+on that same wafer.
+
+\begin{figure} \centering
+  \includegraphics[width=0.4\textwidth]{wafer_counts}
+  \tiny \caption{Wafer allocations for lot}
+  \label{wafer_counts}
+\end{figure}
+
+\begin{figure} \centering
+  \includegraphics[width=0.6\textwidth]{vario_fit}
+  \tiny \caption{Emprical variogram(dot) and fitted parametric 
+  variogram model(line) for a typical wafer (Lot 1 Wafer 7)}
+  \label{vario_fit}
+\end{figure}
+
+\begin{figure} \centering
+  \begin{tabular}{cc}
+    \includegraphics[width=\fwtwo]{wafer_na} &
+    \includegraphics[width=\fwtwo]{wafer_intpol} \\
+    (a) & (b)
+  \end{tabular}
+  \caption{Plot of missing die value data interpolation,
+  (a) raw data wafer metrology map, (b) after missing data
+  interpolation using kriging}
+  \label{wafer_fill}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Conclusions}
+
+to be filled later ... 
+
+
+\section*{Acknowledgments}
+
+to be filled later ... 
+
+ 
+\appendix
+
+\section{Code for Plots} \label{appcode}
+
+
+\verbatiminput{plot_loglog.m}
+
+\bibliographystyle{siam}
+\bibliography{draft}
+
+\end{document}
+

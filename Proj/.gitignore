@@ -1,0 +1,8 @@
+*.aux
+*.log
+*.gz
+cache/
+figure/
+framed.sty
+IBM*
+*.jpg
