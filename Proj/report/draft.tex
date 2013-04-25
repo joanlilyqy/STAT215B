@@ -1,12 +1,46 @@
 \documentclass[12pt]{article}
 \usepackage{latexsym,amssymb,amsmath} % for \Box, \mathbb, split, etc.
 \usepackage{bm} % for bold math
-% \usepackage[]{showkeys} % shows label names
 \usepackage{cite} % sorts citation numbers appropriately
-\usepackage{path}
 \usepackage{url}
 \usepackage{verbatim}
 \usepackage[pdftex]{graphicx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usepackage{listings}
+\lstloadlanguages{R}
+\lstdefinelanguage{Renhanced}[]{R}{
+  morekeywords={acf,ar,arima,arima.sim,colMeans,colSums,is.na,is.null,
+    mapply,ms,na.rm,nlmin,replicate,row.names,rowMeans,rowSums,seasonal,
+    sys.time,system.time,ts.plot,which.max,which.min},
+  deletekeywords={c},
+  alsoletter={.\%},
+  alsoother={:_\$}
+}
+\lstset{
+  language=Renhanced,
+  basicstyle=\scriptsize\ttfamily,
+  commentstyle=\ttfamily\color{dkgreen},
+  numberstyle=\ttfamily\color{gray}\footnotesize,
+  backgroundcolor=\color{white},
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  frame=single,
+  tabsize=2,
+  captionpos=b,
+  breaklines=true,
+  breakatwhitespace=true,
+  title=\lstname,
+  escapeinside={},
+  stringstyle=\color{mauve},
+  keywordstyle=\color{blue},
+  morekeywords={}
+}
 
 % horizontal margins: 1.0 + 6.5 + 1.0 = 8.5
 \setlength{\oddsidemargin}{0.0in}
@@ -62,11 +96,10 @@
 \newcommand{\bmh}{\bm{h}}
 
 % set two lengths for the includegraphics commands used to import the plots:
-\newlength{\fwtwo} \setlength{\fwtwo}{0.45\textwidth}
+\newlength{\fwtwo} \setlength{\fwtwo}{0.48\textwidth}
 % end of personal macros
 
 \begin{document}
-\DeclareGraphicsExtensions{.jpg}
 
 \begin{center}
 \textbf{\Large Enhanced Process Monitoring with Metrology Data} \\[6pt]
@@ -115,14 +148,14 @@ been applied to detect the fault wafers.
 
 The rest of the report is organized as follows: section \ref{kriging}
 will offer a brief dicussion of spatial statistics and Kriging method
-for missing data interpolation; section \ref{kernal} dicusses the PCA
+for missing data interpolation; section \ref{kernel} dicusses the PCA
 (principle component analysis) and kernel PCA methods for FDC; section
 \ref{svm} shows the one-class SVM procedure for FDC; lastly, dection
 performance comparisons and concluding remarks are presented in
 section \ref{result} and section \ref{summary}.
 
 \begin{figure} \centering
-  \includegraphics[width=0.6\textwidth]{metro_hier}
+  \includegraphics[width=0.6\textwidth]{metro_hier.jpg}
   \caption{A typical metrology hierarchy of semiconductor manufacturing}
   \label{metro_hier}
 \end{figure}
@@ -203,7 +236,7 @@ was introduced by Cressie and Hawkins\cite{Cressie93}
 
 
 \begin{figure} \centering
-  \includegraphics[width=0.6\textwidth]{vario_model}
+  \includegraphics[width=0.6\textwidth]{vario_model.jpg}
   \caption{Illustration of parameters in the general semivariogram model}
   \label{vario_model}
 \end{figure}
@@ -316,7 +349,7 @@ and the error variance is
 \end{split}
 \end{equation}
 Solving the optimization problem results in the kriging system that
-gives us $\hat{\bm{W}}$ and the estimate $\hat{X(\bms_0)}=\hat{\bm{W}}^T\bm{X}_n$.
+gives us $\hat{\bm{W}}$ and the estimate $\hat{X}(\bms_0)=\hat{\bm{W}}^T\bm{X}_n$.
 
 
 \subsection{Missing Data Interpolation} \label{nafit}
@@ -343,13 +376,13 @@ emprical variogram of a typical wafer (Lot 1 Wafer 7). Figure
 on that same wafer.
 
 \begin{figure} \centering
-  \includegraphics[width=0.4\textwidth]{wafer_counts}
+  \includegraphics[width=0.4\textwidth]{wafer_counts.jpg}
   \tiny \caption{Wafer allocations for lot}
   \label{wafer_counts}
 \end{figure}
 
 \begin{figure} \centering
-  \includegraphics[width=0.6\textwidth]{vario_fit}
+  \includegraphics[width=0.6\textwidth]{vario_fit.jpg}
   \tiny \caption{Emprical variogram(dot) and fitted parametric 
   variogram model(line) for a typical wafer (Lot 1 Wafer 7)}
   \label{vario_fit}
@@ -357,8 +390,8 @@ on that same wafer.
 
 \begin{figure} \centering
   \begin{tabular}{cc}
-    \includegraphics[width=\fwtwo]{wafer_na} &
-    \includegraphics[width=\fwtwo]{wafer_intpol} \\
+    \includegraphics[width=\fwtwo]{wafer_na.jpg} &
+    \includegraphics[width=\fwtwo]{wafer_intpol.jpg} \\
     (a) & (b)
   \end{tabular}
   \caption{Plot of missing die value data interpolation,
@@ -370,31 +403,255 @@ on that same wafer.
 
 
 
+\section{FDC with Kernel PCA} \label{kernel}
+
+\subsection{PCA and Kernel PCA} \label{pca}
+\hspace{12 pt}
+Principal component analysis (PCA) is an algorithm that linearly transforms
+the original dataset into a new coordinate system, in order to reduce
+the data dimension. Suppose that we have n data points 
+$\mathbf{x_{1}},\,...,\,\mathbf{x_{n}}\,\in\,\mathbb{R}^{d}$.
+These data points compose the $(n\,\times\, d)$ data matrix $\mathbf{X^{T}}$,
+with each column centered to the column mean. If the sample covariance
+matrix is denoted with $\mathbf{C}\,=\,\mathbf{XX^{T}}$, $\mathbf{C}$
+is thus a symmetric matrix. Therefore eigendecomposition can be performed
+on $\mathbf{C}$, and the result is given as
+\[
+\mathbf{C}\,=\,\mathbf{WDW^{T}}
+\]
+Columns of $\mathbf{W}$, which is an orthogonal matrix, are the eigenvectors
+of covariance matrix $\mathbf{C}$. $\mathbf{W}$ is also scaled such
+that $\mathbf{WW^{T}}\,=\,\mathbf{I}$. $\mathbf{D}$ is a diagonal
+matrix and the diagonal entries $d_{ii}$ are the eigenvalues of $\mathbf{C}$.
+Because $\mathbf{C}$ is positive semi-definite, all the eigenvalues
+$d_{ii}$ are non-negative. If all the eigenvalues are ordered decreasingly
+in $\mathbf{D}$, the $j^{th}$ column of $\mathbf{W}$, denoted as
+$\mathbf{w_{j}}$, is named the $j^{th}$ principal component.
+
+$\mathbf{W}$ is also the rotation matrix that linearly transfers
+the raw data $\mathbf{X^{T}}$ into a new coordinate system:
+\[
+\mathbf{Y^{T}}\,=\,\mathbf{X^{T}W}
+\]
+$\mathbf{w_{j}}$ is thus also called the $j^{th}$ coordinate in
+the projected system. As all principal components are orthogonal as
+a property of eigenvectors, the raw are linearly transferred into
+a new orthogonal system. Because 
+\[
+\mathbf{YY^{T}\,=\,\mathbf{W^{T}XX^{T}W}\,=\,\mathbf{W^{T}CW}}\,=\,\mathbf{W^{T}WDW^{T}W}\,=\,\mathbf{D},
+\]
+it can be acquired that $Var(\mathbf{y_{j}})\,=\, d_{jj}$ and 
+$Cov(\mathbf{y_{i}},\,\mathbf{y_{j}})\,=\,0$
+for $i\,\neq\, j$. Additionally, since 
+\[
+\sum_{j}Var(\mathbf{x_{j}})\,=\, tr(\mathbf{C})\,=\, tr(\mathbf{WDW^{T}})\,=\, tr(\mathbf{DW^{T}W})\,=\, tr(\mathbf{D})
+\]
+PCA keeps all the variance of the original data in the eigenvalues
+$d_{jj}$'s. The $j^{th}$ principal component contains the $j^{th}$
+largest variance of the data. By selecting the first $l$ columns
+of the linearly transferred data matrix $\mathbf{Y^{T}}$, we are
+able to greatly reduce the size of the dataset without losing much
+information about the raw data. Statistical analyses, such as hypothesis
+testing, regression, and clustering, can be performed on the first
+several components in the transferred data.
+
+Despite that PCA is a useful method widely utilized in statistical
+analyses, it is limited in linear structures. If we project the data
+non-linearly into another space that is named feature space, 
+\[
+\Phi:\,\mathbb{R}^{d}\,\longmapsto\,\mathbb{F}
+\]
+PCA can still be used for clustering and outlier detection. The $(n\,\times\, n)$
+kernel matrix $\mathbf{K}$ is created through
+\[
+\mathbf{K}_{ij}\,=\, k(\mathbf{x_{i}},\,\mathbf{x_{j}})\,=\,(\Phi(\mathbf{x_{i}}),\,\Phi(\mathbf{x_{j}}))
+\]
+which is the inner product of the feature space. The feature space
+$\Phi(\mathbf{x})$ is also required to be centered before kernel
+PCA is performed. However, centering the data in the original space
+does not guarantee the transformed data in the feature space to be
+centered. $\mathbf{K}$ is centered as follows:
+\[
+\mathbf{K}'\,=\,\mathbf{K}\,-\,\mathbf{1_{N}K}\,-\,\mathbf{K1_{N}}\,+\,\mathbf{1_{N}K1_{N}}
+\]
+in which $\mathbf{1_{N}}$ denotes a $(n\,\times\, n)$ matrix with
+each entry taking value $1/N$. $\mathbf{K}'$ is subsequently used
+for PCA analysis.
+
+
+\subsection{FDC Results} \label{kernres}
+\hspace{12 pt}
+In this section, we perform both linear PCA and kernel PCA on two
+datasets and compare their performances, mainly false discovery rate
+and misclassification rate. The first dataset is $(348\, wafers\,\times\,117\, dies)$
+large, with each element representing the die residual values obtained
+by averaging 14 measurements on the die first and then subtract with
+wafer mean. The second dataset is $(348\, wafers\,\times\,12\, bins)$
+large, and each element describes the variance of the residual values
+of dies whose distances are within the bin sizes, as described in
+previous section. The variogram dataset carries information regarding
+spatial inter-die variance, whereas the residual dataset does not
+take the spatial pattern and the inter-die interaction into consideration.
+
+
+\subsubsection{Linear PCA}
+\hspace{12 pt}
+Figure \ref{fig:1} shows the linear PCA results on the first dataset,
+i.e. the die residual data. As no obvious clusters can be seen from
+the plots, we seek other criteria for fault wafer identification.
+Since the transformed data is the linear combinations of the original
+die residual values, extreme values in the projected coordinates are
+likely to stem from fault wafers, because abnormal spatial patterns
+on the fault wafers can lead to strange values after linear combination.
+The critical values for fault identification are selected by histograms.
+Three components are chosen in this analysis, as the first three principal
+components contain 62\% of the total variance. Extending the analysis
+up to 10 principal components does not give distinct results.
+
+\begin{figure}[!tph]
+\begin{centering}
+\includegraphics[width=0.9\textwidth]{zzw_Figure1.png}
+\par\end{centering}
+
+\caption{Linear PCA projection of die residual data onto (left) the first and
+second coordinate plane and (right) the second and third coordinate
+plane. Red, blue, and purple lines mak the threshold values in the
+first, second, and third principal components for fault wafer identification,
+respectively. Black and red dots represent normal and identified fault
+wafers.\label{fig:1}}
+\end{figure}
+
+
+The linear PCA results of variogram data are displayed in Figure \ref{fig:2}
+with similar analysis. Fault wafers give extreme values farther away
+from the normal wafers in variogram than in die residuals. Fault wafer
+identification is also performed over the first three principal components,
+which contain 98\% of the total variance. PCA on variogram data gives
+fewer fault wafers than on die residual data, which indicates that
+PCA on variogram is relatively conservative. Detailed comparison on
+the false discovery rates and misclassification rates will be given
+later.
+
+\begin{figure}[!tph]
+\begin{centering}
+\includegraphics[width=0.9\textwidth]{zzw_Figure2.png}
+\par\end{centering}
+
+\caption{Linear PCA projection of variogram data onto (left) the first and
+second coordinate plane and (right) the second and third coordinate
+plane. Red, blue, and purple lines mak the threshold values in the
+first, second, and third principal components for fault wafer identification,
+respectively. Black and red dots represent normal and identified fault
+wafers.\label{fig:2}}
+\end{figure}
+
+
+
+\subsubsection{Kernel PCA}
+\hspace{12 pt}
+Kernel PCA were also performed on both datasets by choosing the default
+Gaussian kernels. Figure \ref{fig:3} dispalys the kernel PCA projections
+on the first and second coordinate plane. Two set of points can be
+directly identified from the plots regardless of selected $\sigma$
+values. In fact, in our analysis, the clustering results do not change
+with $\sigma$ values when $\sigma$ is greater than $0.2$, although
+the projection pattern varies. However, kernel PCA on the die residual
+data identifies 109 wafers as the outliers. Provdied a total number
+of 348 wafers, a high false discovery rate is thus expected.
+
+\begin{figure}[!tph]
+\begin{centering}
+\includegraphics[width=0.9\textwidth]{zzw_Figure3.png}
+\par\end{centering}
+
+\caption{Kernel PCA on the die residual dataset with Gaussian kernels and $\sigma\,=$
+(left) $0.5$ and (right) $1$. Black and red dots represent normal
+and identified fault wafers.\label{fig:3}}
+\end{figure}
+
+
+Figure \ref{fig:4} shows the kernel PCA results on the variogram
+data, with Gaussian kernels and $\sigma\,=\,1$. Some scattered outlier
+points rather than a group of clusters are shown in the projected
+plots. Accordingly, the scattered points in the two projection planes
+are identified as the fault wafers. Varying $\sigma$, as in the die
+residual dataset, does not change the wafer idenfiticaion results.
+
+\begin{figure}[!tph]
+\begin{centering}
+\includegraphics[width=0.9\textwidth]{zzw_Figure4.png}
+\par\end{centering}
+
+\caption{Kernel PCA projection of variogram data onto (left) the first and
+second coordinate plane and (right) the second and third coordinate
+plane. Gaussian kernels with $\sigma\,=\,1$ were used. Black and
+red dots represent normal and identified fault wafers.\label{fig:4}}
+\end{figure}
+
+
+
+\subsubsection{Summary}
+
+Table \ref{tab:Summary-of-linear} summarizes the total number of
+fault wafers identified by the two PCA methods on the two datasets,
+together with false discoveries and misclassification rates. Linear
+PCA is in general more conservative than kernel PCA, as suggested
+by the smaller amount of identified fault wafers. Variogram data is
+also more conservative than die residual data. The numbers of misclassified
+wafers by linear and kernel PCA are close. Since the misclassification
+rate is lower in die residual data than in variogram data, our next
+step will focus on varying the parameters, mainly bin sizes, for acquiring
+the variogram values and choosing other kernels than Gaussian kernels,
+in order to improve the misclassification rate on variogram data.
+
+\begin{table}[!tph]
+\caption{Summary of linear and kernel PCA results on die residual and variogram
+datasets. \label{tab:Summary-of-linear}}
+\begin{centering}
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+ &  & Total Identified Fault & False Discoveries & Misclassified\tabularnewline
+\hline 
+\multirow{2}{*}{Linear PCA} & Die Res. & 38 & 16 & 16\tabularnewline
+\cline{2-5} 
+ & Variogram & 18 & 5 & 25\tabularnewline
+\hline 
+\multirow{2}{*}{Kernel PCA} & Die Res. & 109 & 91 & 20\tabularnewline
+\cline{2-5} 
+ & Variogram & 25 & 13 & 26\tabularnewline
+\hline 
+\end{tabular}
+\par\end{centering}
+
+\end{table}
 
 
 
 
 
 
-
-
-
-\section{Conclusions}
-
-to be filled later ... 
+\section{Conclusions} \label{summary}
+\hspace{12 pt}
+In summary, fault wafers in chip fabrication processes can be identified
+through performing SVM and PCA on two datasets--die residuals and
+variograms. With both methods, die residual data lead to lower misclassification
+rates, whereas variogram data outweigh die residual data in false
+discovery rates. Novelty detection method in SVM performs better in
+real fault detection than C-classification. In contrast, C-classification
+gives much fewer false discoveries than novelty detection. Kernel
+PCA, which projects the raw data non-linearly onto a new feature space,
+does not improve the performance in comparison with linear PCA.
 
 
 \section*{Acknowledgments}
 
 to be filled later ... 
 
- 
+
 \appendix
+\section{R Code for Plots} \label{appcode}
+\lstinputlisting{proj_all_clean.r}
 
-\section{Code for Plots} \label{appcode}
-
-
-\verbatiminput{plot_loglog.m}
 
 \bibliographystyle{siam}
 \bibliography{draft}
