@@ -7,3 +7,6 @@ framed.sty
 IBM*
 *.jpg
 *.png
+*.bbl
+*.blg
+*.pdf

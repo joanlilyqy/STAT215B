@@ -1,8 +1,10 @@
-\documentclass[12pt]{article}
+\documentclass[english]{article}
 \usepackage{latexsym,amssymb,amsmath} % for \Box, \mathbb, split, etc.
 \usepackage{bm} % for bold math
 \usepackage{cite} % sorts citation numbers appropriately
 \usepackage{url}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
 \usepackage{verbatim}
 \usepackage[pdftex]{graphicx}
 \usepackage{array}
@@ -108,10 +110,25 @@
 \end{center}
 
 \begin{abstract}
-to be filled later ......
+In the process of semiconductor processing, variability can lead to
+performance degradation in electrical circuits on the chips. Effect
+detection of failed/fault chips can identify the problems in their
+early stage and help avoid future costs. In this project we study
+two methods: 1) principal component analysis (PCA); and 2) support
+vector machines (SVMs), for the detection of \emph{fault} wafers that
+exhibit disrupted spatial patterns. We carry out our study on the
+IBM metrology dataset. With both methods, die residual data lead to
+lower misclassification rates, whereas variogram data outweigh die
+residual data in false discovery rates. Novelty detection method in
+SVM performs better in real fault detection than C-classification.
+In contrast, C-classification gives much fewer false discoveries than
+novelty detection. Kernel PCA, which projects the raw data nonlinearly
+into a new feature space, does not improve the performance in comparison
+with linear PCA.
 \end{abstract}
 
-\subparagraph{Key words.} to be filled later ......
+\subparagraph{Key words.} semiconductor process control, spatial
+variogram, kernel principle component analysis, support vector machine
 
 
 \section{Introduction}
@@ -142,7 +159,7 @@ these spatially disrupted wafers during the manufacturing process can
 greatly reduce the metrology cost and improve the overall chip performance yield.
 Our FDC (Fault wafer Detection and Characterization) scheme is developed on the
 ``complete'' wafer dataset with missing die values interpolated using Kriging
-method\cite{Cressie93}. Kernel PCA [cite] and one-class SVM [cite] method have
+method\cite{Cressie93}. Kernel PCA and one-class SVM method have
 been applied to detect the fault wafers.   
 
 
@@ -151,8 +168,7 @@ will offer a brief dicussion of spatial statistics and Kriging method
 for missing data interpolation; section \ref{kernel} dicusses the PCA
 (principle component analysis) and kernel PCA methods for FDC; section
 \ref{svm} shows the one-class SVM procedure for FDC; lastly, dection
-performance comparisons and concluding remarks are presented in
-section \ref{result} and section \ref{summary}.
+performance comparisons and concluding remarks are presented in section \ref{summary}.
 
 \begin{figure} \centering
   \includegraphics[width=0.6\textwidth]{metro_hier.jpg}
@@ -403,7 +419,7 @@ on that same wafer.
 
 
 
-\section{FDC with Kernel PCA} \label{kernel}
+\section{FDC with Kernel Principle Component Analysis} \label{kernel}
 
 \subsection{PCA and Kernel PCA} \label{pca}
 \hspace{12 pt}
@@ -416,9 +432,9 @@ with each column centered to the column mean. If the sample covariance
 matrix is denoted with $\mathbf{C}\,=\,\mathbf{XX^{T}}$, $\mathbf{C}$
 is thus a symmetric matrix. Therefore eigendecomposition can be performed
 on $\mathbf{C}$, and the result is given as
-\[
+\begin{equation} \label{zz1}
 \mathbf{C}\,=\,\mathbf{WDW^{T}}
-\]
+\end{equation}
 Columns of $\mathbf{W}$, which is an orthogonal matrix, are the eigenvectors
 of covariance matrix $\mathbf{C}$. $\mathbf{W}$ is also scaled such
 that $\mathbf{WW^{T}}\,=\,\mathbf{I}$. $\mathbf{D}$ is a diagonal
@@ -430,22 +446,22 @@ $\mathbf{w_{j}}$, is named the $j^{th}$ principal component.
 
 $\mathbf{W}$ is also the rotation matrix that linearly transfers
 the raw data $\mathbf{X^{T}}$ into a new coordinate system:
-\[
+\begin{equation} \label{zz2}
 \mathbf{Y^{T}}\,=\,\mathbf{X^{T}W}
-\]
+\end{equation}
 $\mathbf{w_{j}}$ is thus also called the $j^{th}$ coordinate in
 the projected system. As all principal components are orthogonal as
 a property of eigenvectors, the raw are linearly transferred into
 a new orthogonal system. Because 
-\[
+\begin{equation} \label{zz3}
 \mathbf{YY^{T}\,=\,\mathbf{W^{T}XX^{T}W}\,=\,\mathbf{W^{T}CW}}\,=\,\mathbf{W^{T}WDW^{T}W}\,=\,\mathbf{D},
-\]
+\end{equation}
 it can be acquired that $Var(\mathbf{y_{j}})\,=\, d_{jj}$ and 
 $Cov(\mathbf{y_{i}},\,\mathbf{y_{j}})\,=\,0$
 for $i\,\neq\, j$. Additionally, since 
-\[
+\begin{equation} \label{zz4}
 \sum_{j}Var(\mathbf{x_{j}})\,=\, tr(\mathbf{C})\,=\, tr(\mathbf{WDW^{T}})\,=\, tr(\mathbf{DW^{T}W})\,=\, tr(\mathbf{D})
-\]
+\end{equation}
 PCA keeps all the variance of the original data in the eigenvalues
 $d_{jj}$'s. The $j^{th}$ principal component contains the $j^{th}$
 largest variance of the data. By selecting the first $l$ columns
@@ -458,22 +474,22 @@ several components in the transferred data.
 Despite that PCA is a useful method widely utilized in statistical
 analyses, it is limited in linear structures. If we project the data
 non-linearly into another space that is named feature space, 
-\[
+\begin{equation} \label{zz5}
 \Phi:\,\mathbb{R}^{d}\,\longmapsto\,\mathbb{F}
-\]
+\end{equation}
 PCA can still be used for clustering and outlier detection. The $(n\,\times\, n)$
 kernel matrix $\mathbf{K}$ is created through
-\[
+\begin{equation} \label{zz6}
 \mathbf{K}_{ij}\,=\, k(\mathbf{x_{i}},\,\mathbf{x_{j}})\,=\,(\Phi(\mathbf{x_{i}}),\,\Phi(\mathbf{x_{j}}))
-\]
+\end{equation}
 which is the inner product of the feature space. The feature space
 $\Phi(\mathbf{x})$ is also required to be centered before kernel
 PCA is performed. However, centering the data in the original space
 does not guarantee the transformed data in the feature space to be
 centered. $\mathbf{K}$ is centered as follows:
-\[
+\begin{equation} \label{zz7}
 \mathbf{K}'\,=\,\mathbf{K}\,-\,\mathbf{1_{N}K}\,-\,\mathbf{K1_{N}}\,+\,\mathbf{1_{N}K1_{N}}
-\]
+\end{equation}
 in which $\mathbf{1_{N}}$ denotes a $(n\,\times\, n)$ matrix with
 each entry taking value $1/N$. $\mathbf{K}'$ is subsequently used
 for PCA analysis.
@@ -510,7 +526,7 @@ up to 10 principal components does not give distinct results.
 
 \begin{figure}[!tph]
 \begin{centering}
-\includegraphics[width=0.9\textwidth]{zzw_Figure1.png}
+\includegraphics[width=\textwidth]{zzw_Figure1.png}
 \par\end{centering}
 
 \caption{Linear PCA projection of die residual data onto (left) the first and
@@ -534,7 +550,7 @@ later.
 
 \begin{figure}[!tph]
 \begin{centering}
-\includegraphics[width=0.9\textwidth]{zzw_Figure2.png}
+\includegraphics[width=\textwidth]{zzw_Figure2.png}
 \par\end{centering}
 
 \caption{Linear PCA projection of variogram data onto (left) the first and
@@ -561,7 +577,7 @@ of 348 wafers, a high false discovery rate is thus expected.
 
 \begin{figure}[!tph]
 \begin{centering}
-\includegraphics[width=0.9\textwidth]{zzw_Figure3.png}
+\includegraphics[width=\textwidth]{zzw_Figure3.png}
 \par\end{centering}
 
 \caption{Kernel PCA on the die residual dataset with Gaussian kernels and $\sigma\,=$
@@ -579,7 +595,7 @@ residual dataset, does not change the wafer idenfiticaion results.
 
 \begin{figure}[!tph]
 \begin{centering}
-\includegraphics[width=0.9\textwidth]{zzw_Figure4.png}
+\includegraphics[width=\textwidth]{zzw_Figure4.png}
 \par\end{centering}
 
 \caption{Kernel PCA projection of variogram data onto (left) the first and
@@ -627,6 +643,102 @@ datasets. \label{tab:Summary-of-linear}}
 
 
 
+\section{FDC with Support Vector Machines} \label{svm}
+\hspace{12 pt}
+In this section, we formulate our problem in the context of supervised
+learning. Support vector machines (SVMs) implement learning algorithms
+that analyze data and recognize patterns, and are widely used for
+classification and regression analysis. More specifically, SVMs map
+the inputs into higher dimensional spaces to seek for hyperplanes
+that can well separate the classes in the data. (A good separation
+by definition is achieved by the hyperplane that has the largest distance
+to the nearest training data point of any class.\cite{libsvm})
+
+\subsection{SVM Learning Method}
+\hspace{12 pt}
+Given a training set of instance-label pairs $(x_{i},y_{i}),i=1,...,N$,
+where $x_{i}\in R^{p}$, and $y_{i}\in\{1,-1\}$, a generic formulation
+of SVMs takes the following form:
+
+\begin{equation} \label{hheq1}
+\begin{split}
+\underset{w,b,\xi}{min} \qquad &\frac{1}{2}w^{T}w+C\sum\xi_{i} \\
+subject\, to \qquad &y_{i}(w^{T}\phi(x_{i})+b)\geqslant1-\xi_{i} \\
+&\xi_{i}\geqslant0
+\end{split}
+\end{equation}
+
+
+Here training vectors $x_{i}$ are mapped into a higher dimensional
+space by the function $\phi$. The positive constant C is the penalty
+parameter of the error terms. The kernel function is defined by $K(x_{i},x_{j})=\phi(x_{i})^{T}\phi(x_{j})$,
+whose most common forms are: \emph{linear, polynomial, radial basis
+function (RBF), and sigmoid}. In this project we choose \emph{RBF}
+which is the built-in kernel of an R package. It is parameterized
+as:
+
+\begin{equation} \label{hheq2}
+K(x_{i},x_{j})=exp(-\gamma||x_{i}-x_{j}||^{2}),\gamma>0
+\end{equation}
+
+
+\subsection{FDC with SVM}
+\hspace{12 pt}
+As explained previously, we explore the problem with respect to: 1)
+single dies; as well as 2) the variogram which incorporates spatial
+information. The responses are expert opinions on whether a particular
+wafer is working (``Normal'') or failed (``Fault'').
+
+
+We first formulate our problem as a classification problem by using
+C-Classification method. The idea is that there exist two classes
+in the data. The control parameters are the \emph{cost} of misclassification
+and the \emph{gamma} parameter in the exponential kernel. We specify
+40 combinations of \emph{cost} and \emph{gamma}. We then formulate
+our problem as a novelty (outlier) detection problem, which treats
+the Fault wafers as outliers. The control parameter is \emph{gamma}.
+We specify 10 different \emph{gamma}s to obtain the best prediction
+results. Within each run 50\% of the wafers (or 174) are randomly
+chosen for training and the rest for testing. Then we obtain the prediction
+statistics with 100 runs and the results are boxplotted in Figure
+\ref{hh1} and Figure \ref{hh2}.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[width=\textwidth]{Fault_Detection_SVM.png}
+\par\end{centering}
+\caption{Boxplot of Correctly Predicted Faults} \label{hh1}
+\end{figure}
+
+
+Figure \ref{hh1} focuses on the predictions of Fault wafers. We constructed
+four scenarios: 1) Single Dies and C-Classification Method; 2) Variogram
+and C-Classification Method; 3) Single Dies and Novelty Detection
+Method; and 4) Variogram and Novelty Detection Method. The left-hand
+graph's y-axis describes the absolute number of correctly detected
+Fault wafers, whereas the right-hand graph's y-axis describes the
+rate of correctly predicted Fault wafers, and the rate is calculated
+by $\frac{\#.Correctly\, detected\, Fault\, wafers}{\#.Total\, Fault\, wafers}$.
+We can see that Single Dies + Novelty detection worked the best in
+terms of Fault wafer detection. We carried out a two-sided t-tests
+on the numbers of correctly detected Fault wafers and the p-value
+was below 2e-16, meaning that the results are statistically significant.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[width=\textwidth]{False_Alam_SVM.png}
+\par\end{centering}
+\caption{Boxplot of False Alarm} \label{hh2}
+\end{figure}
+
+
+Figure \ref{hh2} focuses on the false alarms. A false alarm is defined as
+a detected-Fault-but-Normal wafer. And again the left-hand graph plots
+the absolute numbers of false alarms and the right-hand graph plots
+the false alarm rates which is calculated as $\frac{\#.Falase\, Alarms}{\#.Normal\, Wafers}$.
+This time Variogram + Novelty outperforms Single Dies + Novelty. And
+the t-test on the absolute numbers of false alarms yields a p-value
+below 2e-16. 
 
 
 
@@ -644,13 +756,15 @@ does not improve the performance in comparison with linear PCA.
 
 
 \section*{Acknowledgments}
-
-to be filled later ... 
+\hspace{12 pt}
+The authors would like to thank Professor Jon McAuliffe for advice on
+statistical methods suggestion. Also, we would like to thank IBM
+Research for the dataset.
 
 
 \appendix
-\section{R Code for Plots} \label{appcode}
-\lstinputlisting{proj_all_clean.r}
+%\section{R Code for Plots} \label{appcode}
+%\lstinputlisting{proj_all_clean.r}
 
 
 \bibliographystyle{siam}
